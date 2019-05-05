@@ -1,0 +1,16 @@
+*~
+*.o
+*.map
+*.xz
+*.sha256
+*.img
+*.hex
+e.*
+i.*
+ksh
+init
+urclock
+vputb
+test
+fs
+build
