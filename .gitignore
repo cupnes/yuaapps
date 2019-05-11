@@ -14,3 +14,7 @@ vputb
 test
 fs
 build
+GPATH
+GRTAGS
+GSYMS
+GTAGS
