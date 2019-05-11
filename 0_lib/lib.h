@@ -323,6 +323,7 @@ void draw_px_bg(unsigned int x, unsigned int y);
 void draw_bg(struct file *img);
 void draw_fg(struct file *img);
 void draw_image(struct image *img, unsigned int px, unsigned int py);
+void image_viewer(struct image *img);
 void get_datetime(struct datetime *dt);
 void sleep(unsigned long long us);
 void finish_task(int task_id);

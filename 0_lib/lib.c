@@ -286,6 +286,13 @@ void draw_image(struct image *img, unsigned int px, unsigned int py)
 	syscall(SYSCALL_DRAW_IMG, (unsigned long long)img, px, py);
 }
 
+void image_viewer(struct image *img)
+{
+	if ((img->width < SCREEN_WIDTH) || (img->height < SCREEN_HEIGHT))
+		clear_screen();
+	draw_image(img, 0, 0);
+}
+
 void get_datetime(struct datetime *dt)
 {
 	syscall(SYSCALL_GET_DATETIME, (unsigned long long)dt, 0, 0);
