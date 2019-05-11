@@ -88,14 +88,17 @@ char osunc_file_names[OSUNC_NUM_SLIDES][10] = {
 struct file *osunc_files[OSUNC_NUM_SLIDES];
 unsigned int osunc_idx;
 
+#define SLIDESHOW_MAX_IMAGES	100
 static void slideshow_start(void);
 static void slideshow_kbdhdr(unsigned char c);
+void slideshow_load_slidefile(struct file *slidefile);
 struct file e_slideshow = {
 	"e.slideshow", 0
 };
 unsigned char is_running_slideshow = 0;
 unsigned char is_finished_urclock;
 unsigned char current_slidefile_idx = 0;
+struct image *slide_images[SLIDESHOW_MAX_IMAGES];
 
 /* TODO: current_yua */
 
@@ -392,9 +395,42 @@ static void slideshow_start(void)
 
 static void slideshow_kbdhdr(unsigned char c)
 {
+	unsigned char next_slidefile_idx = current_slidefile_idx;
+	struct file *slidefile;
+
 	switch (c) {
+	case KEY_UP:
+		if (current_slidefile_idx > 0)
+			next_slidefile_idx = current_slidefile_idx - 1;
+		break;
+
+	case KEY_DOWN:
+		if (current_slidefile_idx < (filelist_num - 1))
+			next_slidefile_idx = current_slidefile_idx + 1;
+		break;
+
+	case KEY_ENTER:
+		slidefile = filelist[current_slidefile_idx];
+		slideshow_load_slidefile(slidefile);
+		break;
+
 	case 'e':
 		is_running_slideshow = 0;
 		break;
 	}
+
+	if (next_slidefile_idx != current_slidefile_idx) {
+		draw_image(cursor_img, FILELIST_BASE_X,
+			   FILELIST_BASE_Y
+			   + (FONT_HEIGHT * next_slidefile_idx));
+		draw_image(cursor_mask, FILELIST_BASE_X,
+			   FILELIST_BASE_Y
+			   + (FONT_HEIGHT * current_slidefile_idx));
+		current_slidefile_idx = next_slidefile_idx;
+	}
+}
+
+void slideshow_load_slidefile(struct file *slidefile)
+{
+	return;
 }
