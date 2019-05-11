@@ -19,7 +19,10 @@ src_height=$(echo $width_height | cut -d'x' -f2)
 
 # echo "${src_img} is ${src_width}x${src_height}"
 
-if [ $src_height -le $src_width ]; then
+calc_height=$(((src_height * width) / src_width))
+# echo "calc_height=$calc_height"
+
+if [ $calc_height -le $height ]; then
 	convert $src_img -strip -resize ${width}x $dst_img
 else
 	convert $src_img -strip -resize x${height} $dst_img
