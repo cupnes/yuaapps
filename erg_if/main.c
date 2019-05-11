@@ -44,7 +44,7 @@ static void redraw(void);
 static void kbc_handler(unsigned char c);
 static void make_mask(unsigned int base_x, unsigned int base_y,
 		      struct image *img, struct image *mask);
-static void ls(void);
+static void ls(char prefix);
 
 struct file *sysfile_list[MAX_SYSFILES] = { 0 };
 
@@ -139,7 +139,7 @@ static void redraw(void)
 	}
 	draw_image((struct image *)f->data, 30, 0);
 
-	ls();
+	ls('e');
 
 	urclock_tid = exec_bg(sysfile_list[SFID_URC_EXE]);
 }
@@ -274,7 +274,7 @@ static unsigned char is_sysfile(struct file *f)
 	return 0;
 }
 
-static void ls(void)
+static void ls(char prefix)
 {
 	draw_fg(sysfile_list[SFID_LS_WIN]);
 
@@ -289,6 +289,9 @@ static void ls(void)
 	filelist_num = 0;
 	for (i = 0; i < num_files; i++) {
 		if (is_sysfile(f[i]))
+			continue;
+
+		if (prefix && f[i]->name[0] != prefix)
 			continue;
 
 		puts(f[i]->name);
