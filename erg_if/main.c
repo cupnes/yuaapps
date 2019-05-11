@@ -95,6 +95,7 @@ struct file e_slideshow = {
 };
 unsigned char is_running_slideshow = 0;
 unsigned char is_finished_urclock;
+unsigned char current_slidefile_idx = 0;
 
 /* TODO: current_yua */
 
@@ -375,11 +376,18 @@ static void osunc_kbdhdr(unsigned char c)
 	}
 }
 
+static void slideshow_cursor_init(void)
+{
+	draw_image(cursor_img, FILELIST_BASE_X,
+		   FILELIST_BASE_Y + (FONT_HEIGHT * current_slidefile_idx));
+}
+
 static void slideshow_start(void)
 {
 	is_running_slideshow = 1;
 	is_finished_urclock = 0;
 	ls('s');
+	slideshow_cursor_init();
 }
 
 static void slideshow_kbdhdr(unsigned char c)
