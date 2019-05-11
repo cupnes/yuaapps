@@ -45,6 +45,7 @@ static void kbc_handler(unsigned char c);
 static void make_mask(unsigned int base_x, unsigned int base_y,
 		      struct image *img, struct image *mask);
 static void ls(char prefix);
+static void file_cursor_init(void);
 
 struct file *sysfile_list[MAX_SYSFILES] = { 0 };
 
@@ -86,6 +87,14 @@ char osunc_file_names[OSUNC_NUM_SLIDES][10] = {
 };
 struct file *osunc_files[OSUNC_NUM_SLIDES];
 unsigned int osunc_idx;
+
+static void slideshow_start(void);
+static void slideshow_kbdhdr(unsigned char c);
+struct file e_slideshow = {
+	"e.slideshow", 0
+};
+unsigned char is_running_slideshow = 0;
+unsigned char is_finished_urclock;
 
 /* TODO: current_yua */
 
@@ -140,6 +149,7 @@ static void redraw(void)
 	draw_image((struct image *)f->data, 30, 0);
 
 	ls('e');
+	file_cursor_init();
 
 	urclock_tid = exec_bg(sysfile_list[SFID_URC_EXE]);
 }
@@ -168,6 +178,16 @@ static void kbc_handler(unsigned char c)
 		return;
 	}
 
+	if (is_running_slideshow) {
+		slideshow_kbdhdr(c);
+		if (!is_running_slideshow) {
+			if (!is_finished_urclock)
+				finish_task(urclock_tid);
+			redraw();
+		}
+		return;
+	}
+
 	unsigned char next_file_idx;
 	next_file_idx = current_file_idx;
 	switch (c) {
@@ -192,10 +212,13 @@ static void kbc_handler(unsigned char c)
 
 		case 'e':
 			exec_counter++;
-			finish_task(urclock_tid);
-			if (filelist[current_file_idx] == &e_osunc)
+			if (filelist[current_file_idx] == &e_osunc) {
+				finish_task(urclock_tid);
 				osunc_start();
+			} else if (filelist[current_file_idx] == &e_slideshow)
+				slideshow_start();
 			else {
+				finish_task(urclock_tid);
 				exec(filelist[current_file_idx]);
 				redraw();
 			}
@@ -282,6 +305,9 @@ static void ls(char prefix)
 	f[num_files] = &e_osunc;
 	num_files++;
 
+	f[num_files] = &e_slideshow;
+	num_files++;
+
 	unsigned long long i;
 	move_cursor(FILELIST_NAME_X, FILELIST_BASE_Y);
 	filelist_num = 0;
@@ -299,7 +325,10 @@ static void ls(char prefix)
 		filelist[filelist_num] = f[i];
 		filelist_num++;
 	}
+}
 
+static void file_cursor_init(void)
+{
 	struct file *cursor_file = sysfile_list[SFID_LS_CUR];
 	cursor_img = (struct image *)cursor_file->data;
 	cursor_mask = (struct image *)cursor_mask_data;
@@ -342,6 +371,22 @@ static void osunc_kbdhdr(unsigned char c)
 
 	case 'e':
 		is_running_osunc = 0;
+		break;
+	}
+}
+
+static void slideshow_start(void)
+{
+	is_running_slideshow = 1;
+	is_finished_urclock = 0;
+	ls('s');
+}
+
+static void slideshow_kbdhdr(unsigned char c)
+{
+	switch (c) {
+	case 'e':
+		is_running_slideshow = 0;
 		break;
 	}
 }
