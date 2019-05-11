@@ -58,6 +58,19 @@ int strncmp(char *s1, char *s2, unsigned long long n)
 	}
 }
 
+unsigned long long strnidx(char s[], char c, unsigned long long size)
+{
+	unsigned long long i;
+	for (i = 0; i < size; i++) {
+		if (s[i] == '\0')
+			break;
+
+		if (s[i] == c)
+			break;
+	}
+	return i;
+}
+
 void memcpy(void *dst, void *src, unsigned long long size)
 {
 	unsigned char *d = (unsigned char *)dst;
@@ -334,4 +347,18 @@ char ser_getc(void)
 void ser_putc(char c)
 {
 	syscall(SYSCALL_SER_PUTC, c, 0, 0);
+}
+
+char *file_read_line(char buf[], unsigned int buf_len, struct textfile *text)
+{
+	if (text->idx >= text->file->size)
+		return 0;
+
+	unsigned int len =
+		strnidx((char *)text->file->data + text->idx, '\n',
+			text->file->size - text->idx);
+	memcpy(buf, text->file->data + text->idx, MIN(len, buf_len));
+	buf[len] = '\0';
+	text->idx += len + 1;
+	return buf;
 }

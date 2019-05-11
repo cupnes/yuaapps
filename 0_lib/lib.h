@@ -29,6 +29,8 @@
 #define KEY_RIGHT	0x36
 #define KEY_UP		0x38
 
+#define MIN(A, B)	(((A) <= (B)) ? (A) : (B))
+
 enum SYSCCALL_NO {
 	SYSCALL_PUTC,
 	SYSCALL_GETC,
@@ -244,6 +246,11 @@ struct __attribute__((packed)) file {
 	unsigned char data[0];
 };
 
+struct textfile {
+	unsigned int idx;
+	struct file *file;
+};
+
 struct __attribute__((packed)) pixelformat {
 	unsigned char b;
 	unsigned char g;
@@ -277,6 +284,7 @@ struct __attribute__((packed)) image {
 #ifndef RUN_LOCAL
 int strcmp(char *s1, char *s2);
 int strncmp(char *s1, char *s2, unsigned long long n);
+unsigned long long strnidx(char s[], char c, unsigned long long size);
 void memcpy(void *dst, void *src, unsigned long long size);
 #endif
 unsigned long long syscall(
@@ -326,6 +334,7 @@ unsigned short rand(void);
 #endif
 char ser_getc(void);
 void ser_putc(char c);
+char *file_read_line(char buf[], unsigned int buf_len, struct textfile *text);
 
 extern struct framebuffer *fb;
 
