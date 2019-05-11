@@ -163,10 +163,8 @@ static void kbc_handler(unsigned char c)
 
 	if (is_running_osunc) {
 		osunc_kbdhdr(c);
-		if (!is_running_osunc) {
-			finish_task(urclock_tid);
+		if (!is_running_osunc)
 			redraw();
-		}
 		return;
 	}
 
