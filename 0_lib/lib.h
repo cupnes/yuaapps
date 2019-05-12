@@ -324,6 +324,9 @@ void draw_bg(struct file *img);
 void draw_fg(struct file *img);
 void draw_image(struct image *img, unsigned int px, unsigned int py);
 void image_viewer(struct image *img);
+void make_mask_region(unsigned int base_x, unsigned int base_y,
+		      unsigned int width, unsigned int height,
+		      struct image *mask);
 void get_datetime(struct datetime *dt);
 void sleep(unsigned long long us);
 void finish_task(int task_id);

@@ -302,6 +302,29 @@ void image_viewer(struct image *img)
 	draw_image(img, px, py);
 }
 
+void make_mask_region(unsigned int base_x, unsigned int base_y,
+		      unsigned int width, unsigned int height,
+		      struct image *mask)
+{
+	mask->width = width;
+	mask->height = height;
+
+	struct pixelformat *mask_p = mask->data;
+
+	unsigned int x, y;
+	for (y = base_y; y < (base_y + height); y++) {
+		for (x = base_x; x < (base_x + width); x++) {
+			struct pixelformat tmp_p;
+			get_px(x, y, &tmp_p);
+			mask_p->b = tmp_p.b;
+			mask_p->g = tmp_p.g;
+			mask_p->r = tmp_p.r;
+			mask_p->_reserved = tmp_p._reserved;
+			mask_p++;
+		}
+	}
+}
+
 void get_datetime(struct datetime *dt)
 {
 	syscall(SYSCALL_GET_DATETIME, (unsigned long long)dt, 0, 0);
