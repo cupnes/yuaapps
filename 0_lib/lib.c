@@ -290,7 +290,16 @@ void image_viewer(struct image *img)
 {
 	if ((img->width < SCREEN_WIDTH) || (img->height < SCREEN_HEIGHT))
 		clear_screen();
-	draw_image(img, 0, 0);
+
+	unsigned int px = 0;
+	if (img->width < SCREEN_WIDTH)
+		px = (SCREEN_WIDTH - img->width) / 2;
+
+	unsigned int py = 0;
+	if (img->height < SCREEN_HEIGHT)
+		py = (SCREEN_HEIGHT - img->height) / 2;
+
+	draw_image(img, px, py);
 }
 
 void get_datetime(struct datetime *dt)
