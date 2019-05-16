@@ -28,7 +28,7 @@ static void dump_packet(unsigned char *p_buf, unsigned short p_len)
 	unsigned int i;
 	for (i = 0; i < p_len; i++) {
 		puth(p_buf[i], 2);
-		putc(' ');
+		putchar(' ');
 	}
 	puts("\r\n");
 }
