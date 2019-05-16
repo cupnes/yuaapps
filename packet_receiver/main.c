@@ -15,7 +15,7 @@ int main(void)
 	unsigned char p_buf[PACKET_BUF_SIZE];
 	unsigned short p_len;
 	while (1) {
-		receive_packet(p_buf, &p_len);
+		p_len = receive_packet(p_buf);
 		if (p_len)
 			dump_packet(p_buf, p_len);
 	}
