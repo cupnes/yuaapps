@@ -235,10 +235,9 @@ int exec_bg(struct file *file)
 	return (int)syscall(SYSCALL_ENQ_TASK, (unsigned long long)file, 0, 0);
 }
 
-void receive_packet(void *p_data, unsigned short *p_len)
+unsigned short receive_packet(void *p_data)
 {
-	syscall(SYSCALL_RCV_PKT, (unsigned long long)p_data,
-		(unsigned long long)p_len, 0);
+	return syscall(SYSCALL_RCV_PKT, (unsigned long long)p_data, 0, 0);
 }
 
 void send_packet(void *p_data, unsigned short p_len)
