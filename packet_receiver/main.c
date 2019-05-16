@@ -10,6 +10,8 @@ int main(void)
 	set_bg(0, 70, 250);
 	clear_screen();
 
+	nic_rx_enable();
+
 	unsigned char p_buf[PACKET_BUF_SIZE];
 	unsigned short p_len;
 	while (1) {
