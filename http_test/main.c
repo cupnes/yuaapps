@@ -10,6 +10,8 @@
 #include <errno.h>
 #endif
 
+#define DISPLAY_TIME_CYCLES	1000000000
+
 #define EPHEMERAL_PORT_MIN	49152
 
 #define PACKET_BUF_SIZE	1024
@@ -27,6 +29,8 @@
 #define TCP_FLAGS_SYN	0x0002
 #define TCP_FLAGS_PSH	0x0008
 #define TCP_FLAGS_ACK	0x0010
+
+#define DEBUG_WAIT_TIME	700000
 
 struct __attribute__((packed)) ethernet_header {
 	unsigned char dst_mac[6];
@@ -126,6 +130,9 @@ unsigned int swap_byte_4(unsigned int data);
 
 unsigned short get_ip_checksum(struct ip_header *ip_h);
 unsigned short get_tcp_checksum(struct tcp_header *tcp_h, struct tcp_session *session);
+unsigned short get_tcp_payload_checksum(
+	struct tcp_header *tcp_h, unsigned short payload_size,
+	struct tcp_session *session);
 
 struct tcp_session *ht_connect(
 	unsigned char dst_mac[], unsigned char dst_ip[],
@@ -146,12 +153,13 @@ int main(void)
 
 	session = ht_connect(server_mac, server_ip, HTTP_PORT);
 
-	/* http_get(session); */
-	/* http_rcv(session); */
+	http_get(session);
+	http_rcv(session);
 
-	puts("HTTP RCVED\r\n");
+	ht_disconnect(session);
 
-	/* ht_disconnect(session); */
+	volatile unsigned int _wait = DISPLAY_TIME_CYCLES;
+	while (_wait--);
 
 	return 0;
 }
@@ -225,6 +233,109 @@ unsigned short get_tcp_checksum(struct tcp_header *tcp_h,
 	return ~t;
 }
 
+#ifdef DEBUG
+static void debug_dump_short(unsigned short v)
+{
+	puth(swap_byte_2(v), 4);
+	putchar('(');
+	puth(v, 4);
+	puts(") ");
+}
+#endif
+
+unsigned short get_tcp_payload_checksum(
+	struct tcp_header *tcp_h, unsigned short payload_size,
+	struct tcp_session *session)
+{
+#ifdef DEBUG
+	clear_screen();
+#endif
+
+	union pseudo_tcp_packet {
+		unsigned short raw[6];
+		struct __attribute__((packed)) {
+			unsigned char src_ip[4];
+			unsigned char dst_ip[4];
+			unsigned char zero;
+			unsigned char protocol;
+			unsigned short tcp_len;
+		};
+	} ppacket;
+
+	unsigned int i;
+	memcpy(ppacket.src_ip, own_ip, 4);
+	memcpy(ppacket.dst_ip, session->dst_ip, 4);
+	ppacket.zero = 0;
+	ppacket.protocol = IP_HEADER_PROTOCOL_TCP;
+	ppacket.tcp_len = swap_byte_2(sizeof(struct tcp_header) + payload_size);
+
+	unsigned int sum = 0;
+
+	for (i = 0; i < 6; i++) {
+#ifdef DEBUG
+		debug_dump_short(ppacket.raw[i]);
+#endif
+		sum += swap_byte_2(ppacket.raw[i]);
+	}
+#ifdef DEBUG
+	puth(sum, 8);
+	puts("\r\n");
+#endif
+
+	unsigned short *p = (unsigned short *)tcp_h;
+
+	unsigned int sum2 = 0;
+	for (i = 0; i < (sizeof(struct tcp_header) / 2); i++) {
+#ifdef DEBUG
+		debug_dump_short(*p);
+#endif
+		sum2 += swap_byte_2(*p++);
+	}
+#ifdef DEBUG
+	puth(sum2, 8);
+	puts("\r\n");
+#endif
+	sum += sum2;
+
+	unsigned int sum3 = 0;
+	for (i = 0; i < (payload_size / 2); i++) {
+#ifdef DEBUG
+		debug_dump_short(*p);
+#endif
+		sum3 += swap_byte_2(*p++);
+	}
+	if (payload_size % 2) {
+#ifdef DEBUG
+		debug_dump_short(*p);
+#endif
+		sum3 += swap_byte_2(*p);
+	}
+#ifdef DEBUG
+	puth(sum3, 8);
+	puts("\r\n");
+#endif
+	sum += sum3;
+#ifdef DEBUG
+	puth(sum, 8);
+	puts("\r\n");
+#endif
+
+	unsigned int carry = sum >> 16;
+	sum &= 0x0000ffff;
+
+	sum += carry;
+#ifdef DEBUG
+	puth(sum, 8);
+	puts("\r\n");
+#endif
+
+	unsigned short t = sum;
+#ifdef DEBUG
+	puth(~t, 4);
+#endif
+	return ~t;
+}
+
 struct tcp_session *connect_init(
 	unsigned char dst_mac[], unsigned char dst_ip[],
 	unsigned short dst_port)
@@ -279,10 +390,11 @@ void connect_syn(struct tcp_session *session)
 #endif
 	struct ip_header *ip_h;
 	struct tcp_header *tcp_h;
-	/* struct tcp_header_options_a *tcp_opt_h; */
 
+#ifdef DEBUG
 	unsigned int i;
 	unsigned char *p;
+#endif
 
 	/* frame */
 	base_addr = (unsigned long long)send_buf;
@@ -292,12 +404,14 @@ void connect_syn(struct tcp_session *session)
 	memcpy(eth_h->src_mac, own_mac, 6);
 	eth_h->type = swap_byte_2(FRAME_TYPE_IP);
 
-	/* p = (unsigned char *)eth_h; */
-	/* for (i = 0; i < sizeof(struct ethernet_header); i++) { */
-	/* 	puth(*p++, 2); */
-	/* 	putchar(' '); */
-	/* } */
-	/* puts("\r\n"); */
+#ifdef DEBUG
+	p = (unsigned char *)eth_h;
+	for (i = 0; i < sizeof(struct ethernet_header); i++) {
+		puth(*p++, 2);
+		putchar(' ');
+	}
+	puts("\r\n");
+#endif
 
 	/* ip */
 	base_addr += sizeof(struct ethernet_header);
@@ -306,10 +420,8 @@ void connect_syn(struct tcp_session *session)
 	ip_h->version = 4;
 	ip_h->ihl = 5;
 	ip_h->service_type = 0x00;
-	/* ip_h->total_length = swap_byte_2(sizeof(struct ip_header) + sizeof(struct tcp_header)); */
-	ip_h->total_length = sizeof(struct ip_header) + sizeof(struct tcp_header);
+	ip_h->total_length = swap_byte_2(sizeof(struct ip_header) + sizeof(struct tcp_header));
 	ip_h->identification = swap_byte_2(session->id);
-	/* ip_h->fragment_offset = swap_byte_2(IP_HEADER_FLAGS_DF); */
 	ip_h->fragment_offset = 0;
 	ip_h->ttl = 64;
 	ip_h->protocol = IP_HEADER_PROTOCOL_TCP;
@@ -318,12 +430,14 @@ void connect_syn(struct tcp_session *session)
 	memcpy(ip_h->dst_ip, session->dst_ip, 4);
 	ip_h->header_checksum = swap_byte_2(get_ip_checksum(ip_h));
 
-	/* p = (unsigned char *)ip_h; */
-	/* for (i = 0; i < sizeof(struct ip_header); i++) { */
-	/* 	puth(*p++, 2); */
-	/* 	putchar(' '); */
-	/* } */
-	/* puts("\r\n"); */
+#ifdef DEBUG
+	p = (unsigned char *)ip_h;
+	for (i = 0; i < sizeof(struct ip_header); i++) {
+		puth(*p++, 2);
+		putchar(' ');
+	}
+	puts("\r\n");
+#endif
 
 	/* tcp */
 	base_addr += sizeof(struct ip_header);
@@ -332,55 +446,34 @@ void connect_syn(struct tcp_session *session)
 	tcp_h->dst_port = swap_byte_2(session->dst_port);
 	tcp_h->seq_num = swap_byte_4(session->seq_num);
 	tcp_h->ack_num = swap_byte_4(session->ack_num);
-	/* tcp_h->header_length_flags = */
-	/* 	swap_byte_2((10U << TCP_HEADER_LEN_SHIFT) | TCP_FLAGS_SYN); */
 	tcp_h->header_length_flags =
 		swap_byte_2((5U << TCP_HEADER_LEN_SHIFT) | TCP_FLAGS_SYN);
 	tcp_h->window_size = swap_byte_2(29200);
-	/* tcp_h->check_sum = swap_byte_2(0xc221); */
 	tcp_h->check_sum = 0;
 	tcp_h->urgent_pointer = 0;
 	tcp_h->check_sum = swap_byte_2(get_tcp_checksum(tcp_h, session));
 
-	/* /\* tcp (options) *\/ */
-	/* base_addr += sizeof(struct tcp_header); */
-	/* tcp_opt_h = (struct tcp_header_options_a *)base_addr; */
-	/* tcp_opt_h->max_seg_size.kind = 2; */
-	/* tcp_opt_h->max_seg_size.length = 4; */
-	/* tcp_opt_h->max_seg_size.mss_value = swap_byte_2(1460); */
-	/* tcp_opt_h->tcp_sack_permit.kind = 4; */
-	/* tcp_opt_h->tcp_sack_permit.length = 2; */
-	/* tcp_opt_h->timestamp.kind = 8; */
-	/* tcp_opt_h->timestamp.length = 10; */
-	/* tcp_opt_h->timestamp.timestamp_value = swap_byte_4(145763); */
-	/* tcp_opt_h->timestamp.timestamp_echo_replay = 0; */
-	/* tcp_opt_h->nop = 1; */
-	/* tcp_opt_h->window_scale.kind = 3; */
-	/* tcp_opt_h->window_scale.length = 3; */
-	/* tcp_opt_h->window_scale.shift_count = 7; */
-
-	/* p = (unsigned char *)tcp_h; */
-	/* for (i = 0; i < sizeof(struct tcp_header); i++) { */
-	/* 	puth(*p++, 2); */
-	/* 	putchar(' '); */
-	/* } */
-	/* puts("\r\n"); */
-
-	/* unsigned short len = */
-	/* 	sizeof(struct ethernet_header) + sizeof(struct ip_header) */
-	/* 	+ sizeof(struct tcp_header) */
-	/* 	+ sizeof(struct tcp_header_options_a); */
+#ifdef DEBUG
+	p = (unsigned char *)tcp_h;
+	for (i = 0; i < sizeof(struct tcp_header); i++) {
+		puth(*p++, 2);
+		putchar(' ');
+	}
+	puts("\r\n");
+#endif
 
 	unsigned short len =
 		sizeof(struct ethernet_header) + sizeof(struct ip_header)
 		+ sizeof(struct tcp_header);
 
+#ifdef DEBUG
 	p = (unsigned char *)send_buf;
 	for (i = 0; i < len; i++) {
 		puth(*p++, 2);
 		putchar(' ');
 	}
 	puts("\r\n");
+#endif
 
 #ifdef RUN_LOCAL
 	FILE *dump = fopen("dump.hex", "wb");
@@ -422,8 +515,6 @@ void connect_synack(struct tcp_session *session)
 	nic_rx_enable();
 
 	while (1) {
-		puts("wait for recv\r\n");
-
 #ifdef RUN_LOCAL
 		struct sockaddr saddr;
 		socklen_t slen = sizeof(struct sockaddr);
@@ -434,41 +525,50 @@ void connect_synack(struct tcp_session *session)
 		len = receive_packet(recv_buf);
 #endif
 
-		if (len == 0) {
-			puts("len = 0\r\n");
+		if (len == 0)
 			continue;
-		}
-		/* puts("len=0x");
+
+#ifdef DEBUG
+		puts("len=0x");
 		puth(len, 4);
-		puts("\r\n"); */
+		puts("\r\n");
+#endif
 
 		struct ethernet_header *eth_h = (struct ethernet_header *)recv_buf;
 		struct ip_header *ip_h = (struct ip_header *)(eth_h + 1);
 		struct tcp_header *tcp_h = (struct tcp_header *)(ip_h + 1);
 
+		unsigned short tcp_len_flgs = swap_byte_2(tcp_h->header_length_flags);
+
+#ifdef DEBUG
 		puts("header_length_flags=0x");
-		puth(tcp_h->header_length_flags, 4);
+		puth(tcp_len_flgs, 4);
 		puts("\r\n");
+#endif
 
-		if (!(tcp_h->header_length_flags & TCP_FLAGS_SYN))
+		if (!(tcp_len_flgs & TCP_FLAGS_SYN))
 			continue;
+#ifdef DEBUG
 		puts("SYN=1\r\n");
+#endif
 
-		if (!(tcp_h->header_length_flags & TCP_FLAGS_ACK))
+		if (!(tcp_len_flgs & TCP_FLAGS_ACK))
 			continue;
+#ifdef DEBUG
 		puts("ACK=1\r\n");
+#endif
 
 		unsigned int ack_num_le = swap_byte_4(tcp_h->ack_num);
+#ifdef DEBUG
 		puts("ack_num_le=0x");
 		puth(ack_num_le, 8);
 		puts("\r\n");
+#endif
 		if (ack_num_le != session->seq_num)
 			continue;
-		puts("ack_num_le!=seq_num(0x");
-		puth(session->seq_num, 8);
-		puts(")\r\n");
 
-		session->ack_num = ack_num_le + 1;
+		unsigned int seq_num_le = swap_byte_4(tcp_h->seq_num);
+		session->ack_num = seq_num_le + 1;
 		break;
 	}
 }
@@ -476,47 +576,54 @@ void connect_synack(struct tcp_session *session)
 void connect_ack(struct tcp_session *session)
 {
 	unsigned long long base_addr;
+	struct ethernet_header *eth_h;
 	struct ip_header *ip_h;
 	struct tcp_header *tcp_h;
-	struct tcp_header_options_b *tcp_opt_h;
 
 	/* frame */
 	base_addr = (unsigned long long)send_buf;
+	eth_h = (struct ethernet_header *)base_addr;
+	memcpy(eth_h->dst_mac, session->dst_mac, 6);
+	memcpy(eth_h->src_mac, own_mac, 6);
+	eth_h->type = swap_byte_2(FRAME_TYPE_IP);
 
 	/* ip */
 	base_addr += sizeof(struct ethernet_header);
 	ip_h = (struct ip_header *)base_addr;
-	ip_h->total_length = swap_byte_2(52);
+	ip_h->version = 4;
+	ip_h->ihl = 5;
+	ip_h->service_type = 0x00;
+	ip_h->total_length = swap_byte_2(sizeof(struct ip_header) + sizeof(struct tcp_header));
 	ip_h->identification = swap_byte_2(session->id);
+	ip_h->fragment_offset = 0;
+	ip_h->ttl = 64;
+	ip_h->protocol = IP_HEADER_PROTOCOL_TCP;
+	ip_h->header_checksum = 0;
+	memcpy(ip_h->src_ip, own_ip, 4);
+	memcpy(ip_h->dst_ip, session->dst_ip, 4);
+	ip_h->header_checksum = swap_byte_2(get_ip_checksum(ip_h));
 
 	/* tcp */
 	base_addr += sizeof(struct ip_header);
 	tcp_h = (struct tcp_header *)base_addr;
+	tcp_h->src_port = swap_byte_2(session->src_port);
+	tcp_h->dst_port = swap_byte_2(session->dst_port);
 	tcp_h->seq_num = swap_byte_4(session->seq_num);
 	tcp_h->ack_num = swap_byte_4(session->ack_num);
 	tcp_h->header_length_flags =
-		swap_byte_2((8U << TCP_HEADER_LEN_SHIFT) | TCP_FLAGS_ACK);
+		swap_byte_2((5U << TCP_HEADER_LEN_SHIFT) | TCP_FLAGS_ACK);
 	tcp_h->window_size = swap_byte_2(229);
-
-	/* tcp (options) */
-	base_addr += sizeof(struct tcp_header);
-	tcp_opt_h = (struct tcp_header_options_b *)base_addr;
-	tcp_opt_h->nop_1 = 1;
-	tcp_opt_h->nop_2 = 1;
-	tcp_opt_h->timestamp.kind = 8;
-	tcp_opt_h->timestamp.length = 10;
-	tcp_opt_h->timestamp.timestamp_value = swap_byte_4(145770);
-	tcp_opt_h->timestamp.timestamp_echo_replay = swap_byte_4(2512521363);
+	tcp_h->check_sum = 0;
+	tcp_h->urgent_pointer = 0;
+	tcp_h->check_sum = swap_byte_2(get_tcp_checksum(tcp_h, session));
 
 	unsigned short len =
 		sizeof(struct ethernet_header) + sizeof(struct ip_header)
-		+ sizeof(struct tcp_header)
-		+ sizeof(struct tcp_header_options_b);
+		+ sizeof(struct tcp_header);
 
 	send_packet(send_buf, len);
 
 	session->id++;
-	session->seq_num++;
 }
 
 struct tcp_session *ht_connect(
@@ -527,7 +634,7 @@ struct tcp_session *ht_connect(
 		connect_init(dst_mac, dst_ip, dst_port);
 	connect_syn(session);
 	connect_synack(session);
-	/* connect_ack(session); */
+	connect_ack(session);
 
 	return session;
 }
@@ -535,58 +642,75 @@ struct tcp_session *ht_connect(
 void http_get(struct tcp_session *session)
 {
 	unsigned long long base_addr;
+	struct ethernet_header *eth_h;
 	struct ip_header *ip_h;
 	struct tcp_header *tcp_h;
-	struct tcp_header_options_b *tcp_opt_h;
-	unsigned char *http_req_p;
+	unsigned short http_req_size = sizeof(http_request) - 1;
 
 	/* frame */
 	base_addr = (unsigned long long)send_buf;
+	eth_h = (struct ethernet_header *)base_addr;
+	memcpy(eth_h->dst_mac, session->dst_mac, 6);
+	memcpy(eth_h->src_mac, own_mac, 6);
+	eth_h->type = swap_byte_2(FRAME_TYPE_IP);
 
 	/* ip */
 	base_addr += sizeof(struct ethernet_header);
 	ip_h = (struct ip_header *)base_addr;
-	ip_h->total_length = swap_byte_2(52);
+	ip_h->version = 4;
+	ip_h->ihl = 5;
+	ip_h->service_type = 0x00;
+	ip_h->total_length =
+		swap_byte_2(sizeof(struct ip_header) + sizeof(struct tcp_header)
+			    + http_req_size);
 	ip_h->identification = swap_byte_2(session->id);
+	ip_h->fragment_offset = 0;
+	ip_h->ttl = 64;
+	ip_h->protocol = IP_HEADER_PROTOCOL_TCP;
+	ip_h->header_checksum = 0;
+	memcpy(ip_h->src_ip, own_ip, 4);
+	memcpy(ip_h->dst_ip, session->dst_ip, 4);
+	ip_h->header_checksum = swap_byte_2(get_ip_checksum(ip_h));
 
 	/* tcp */
 	base_addr += sizeof(struct ip_header);
 	tcp_h = (struct tcp_header *)base_addr;
+	tcp_h->src_port = swap_byte_2(session->src_port);
+	tcp_h->dst_port = swap_byte_2(session->dst_port);
 	tcp_h->seq_num = swap_byte_4(session->seq_num);
 	tcp_h->ack_num = swap_byte_4(session->ack_num);
 	tcp_h->header_length_flags =
-		swap_byte_2((8U << TCP_HEADER_LEN_SHIFT) | TCP_FLAGS_PSH
-			    | TCP_FLAGS_ACK);
+		swap_byte_2((5U << TCP_HEADER_LEN_SHIFT)
+			    | TCP_FLAGS_ACK | TCP_FLAGS_PSH);
 	tcp_h->window_size = swap_byte_2(229);
-
-	/* tcp (options) */
-	base_addr += sizeof(struct tcp_header);
-	tcp_opt_h = (struct tcp_header_options_b *)base_addr;
-	tcp_opt_h->nop_1 = 1;
-	tcp_opt_h->nop_2 = 1;
-	tcp_opt_h->timestamp.kind = 8;
-	tcp_opt_h->timestamp.length = 10;
-	tcp_opt_h->timestamp.timestamp_value = swap_byte_4(145770);
-	tcp_opt_h->timestamp.timestamp_echo_replay = swap_byte_4(2512521363);
+	tcp_h->check_sum = 0;
+	tcp_h->urgent_pointer = 0;
 
 	/* http */
-	base_addr += sizeof(struct tcp_header_options_b);
-	http_req_p = (unsigned char *)base_addr;
-	memcpy(http_req_p, http_request, sizeof(http_request));
+	base_addr += sizeof(struct tcp_header);
+	unsigned char *http_req_p = (unsigned char *)base_addr;
+	memcpy(http_req_p, http_request, http_req_size);
+
+	tcp_h->check_sum =
+		swap_byte_2(get_tcp_payload_checksum(
+				    tcp_h, http_req_size, session));
+
 
 	unsigned short len =
 		sizeof(struct ethernet_header) + sizeof(struct ip_header)
-		+ sizeof(struct tcp_header)
-		+ sizeof(struct tcp_header_options_b) + sizeof(http_request);
+		+ sizeof(struct tcp_header) + http_req_size;
 
 	send_packet(send_buf, len);
 
 	session->id++;
-	session->seq_num++;
 }
 
 void http_rcv(struct tcp_session *session)
 {
+#ifdef DEBUG
+	clear_screen();
+#endif
+
 	while (1) {
 		unsigned short len;
 		len = receive_packet(recv_buf);
@@ -596,29 +720,39 @@ void http_rcv(struct tcp_session *session)
 
 		unsigned long long base_addr =
 			(unsigned long long)recv_buf
-			+ sizeof(struct ethernet_header)
-			+ sizeof(struct ip_header);
+			+ sizeof(struct ethernet_header);
+		struct ip_header *ip_h = (struct ip_header *)base_addr;
+		base_addr += sizeof(struct ip_header);
 		struct tcp_header *tcp_h = (struct tcp_header *)base_addr;
 
-		if (!(tcp_h->header_length_flags & TCP_FLAGS_PSH))
+		unsigned short tcp_len_flgs =
+			swap_byte_2(tcp_h->header_length_flags);
+
+		if (!(tcp_len_flgs & TCP_FLAGS_PSH))
 			continue;
 
-		if (!(tcp_h->header_length_flags & TCP_FLAGS_ACK))
+		if (!(tcp_len_flgs & TCP_FLAGS_ACK))
 			continue;
 
-		base_addr += sizeof(struct tcp_header)
-			+ sizeof(struct tcp_header_options_b);
+		unsigned int seq_num_le = swap_byte_4(tcp_h->seq_num);
+		if (seq_num_le != session->ack_num)
+			continue;
 
-		len -= sizeof(struct ethernet_header) + sizeof(struct ip_header)
-			+ sizeof(struct tcp_header)
-			+ sizeof(struct tcp_header_options_b);
+		base_addr += sizeof(struct tcp_header);
 
+#ifdef DEBUG
+		puts("len=");
+		putd(len, 4);
+		puts("\r\n");
+#endif
+
+		unsigned short http_len =
+			swap_byte_2(ip_h->total_length)
+			- sizeof(struct ip_header) - sizeof(struct tcp_header);
 		unsigned char *http_rcv = (unsigned char *)base_addr;
 		unsigned int i;
-		for (i = 0; i < len; i++) {
-			puth(*http_rcv++, 2);
-			putchar(' ');
-		}
+		for (i = 0; i < http_len; i++)
+			putchar(*http_rcv++);
 		puts("\r\n");
 
 		session->ack_num = tcp_h->ack_num + 1;
@@ -628,5 +762,7 @@ void http_rcv(struct tcp_session *session)
 
 void ht_disconnect(struct tcp_session *session __attribute__((unused)))
 {
+	/* TBD */
+
 	return;
 }
