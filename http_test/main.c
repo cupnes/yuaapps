@@ -431,7 +431,7 @@ void connect_synack(struct tcp_session *session)
 				       &saddr, &slen);
 #else
 		unsigned short len;
-		receive_packet(recv_buf, &len);
+		len = receive_packet(recv_buf);
 #endif
 
 		if (len == 0) {
@@ -589,7 +589,7 @@ void http_rcv(struct tcp_session *session)
 {
 	while (1) {
 		unsigned short len;
-		receive_packet(recv_buf, &len);
+		len = receive_packet(recv_buf);
 
 		if (len == 0)
 			continue;
