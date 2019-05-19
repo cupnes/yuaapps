@@ -92,6 +92,7 @@ unsigned int osunc_idx;
 enum {
 	SS_SELECTOR_MODE,
 	SS_VIEWER_MODE,
+	SS_AUTO_MODE,
 	SS_NUM_STATUS
 };
 static void slideshow_start(void);
@@ -109,11 +110,14 @@ struct image *slide_images[SLIDESHOW_MAX_IMAGES];
 unsigned int num_slide_images;
 unsigned int slide_idx;
 
+struct file *e_auto_slideshow;
+
 /* TODO: current_yua */
 
 int main(void)
 {
 	open_sysfiles();
+	e_auto_slideshow = open("e.auto_slideshow");
 	/* current_yua = sysfile_list[SFID_YUA_IMG]; */
 	osunc_init();
 
@@ -229,6 +233,11 @@ static void kbc_handler(unsigned char c)
 				osunc_start();
 			} else if (filelist[current_file_idx] == &e_slideshow)
 				slideshow_start();
+			else if (filelist[current_file_idx]
+				 == e_auto_slideshow) {
+				finish_task(urclock_tid);
+				exec_bg(e_auto_slideshow);
+			}
 			else {
 				finish_task(urclock_tid);
 				exec(filelist[current_file_idx]);
@@ -464,6 +473,15 @@ static void ss_selector_kbdhdr(unsigned char c)
 		slide_idx = 0;
 		image_viewer(slide_images[slide_idx]);
 		ss_status = SS_VIEWER_MODE;
+		break;
+
+	case 's':
+		finish_task(urclock_tid);
+		slidefile = filelist[current_slidefile_idx];
+		slideshow_load_slidefile(slidefile);
+		slide_idx = 0;
+		image_viewer(slide_images[slide_idx]);
+		ss_status = SS_AUTO_MODE;
 		break;
 
 	case 'e':
