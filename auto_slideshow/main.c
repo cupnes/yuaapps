@@ -1,6 +1,6 @@
 #include <lib.h>
 
-#define SLIDE_FILE_NAME	"s.yuaupdate01"
+#define SLIDE_FILE_NAME	"s.yuaupdate"
 #define SLIDE_WAIT_SEC	5
 #define SLIDESHOW_MAX_IMAGES	100
 
