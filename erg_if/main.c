@@ -115,6 +115,9 @@ struct file *e_auto_slideshow;
 unsigned char is_running_auto_slideshow = 0;
 int auto_slideshow_tid;
 
+static void ex_app_kbdhdr(unsigned char c);
+int external_app_tid = 0;
+
 /* TODO: current_yua */
 
 int main(void)
@@ -216,6 +219,13 @@ static void kbc_handler(unsigned char c)
 		return;
 	}
 
+	if (external_app_tid && is_alive(external_app_tid)) {
+		ex_app_kbdhdr(c);
+		if (!external_app_tid)
+			redraw();
+		return;
+	}
+
 	unsigned char next_file_idx;
 	next_file_idx = current_file_idx;
 	switch (c) {
@@ -250,11 +260,9 @@ static void kbc_handler(unsigned char c)
 				is_running_auto_slideshow = 1;
 				finish_task(urclock_tid);
 				auto_slideshow_tid = exec_bg(e_auto_slideshow);
-			}
-			else {
+			} else {
 				finish_task(urclock_tid);
-				exec(filelist[current_file_idx]);
-				redraw();
+				external_app_tid = exec_bg(filelist[current_file_idx]);
 			}
 			break;
 		}
@@ -554,6 +562,17 @@ static void auto_slideshow_kbdhdr(unsigned char c)
 	case KEY_ESC:
 	case 'e':
 		is_running_auto_slideshow = 0;
+		break;
+	}
+}
+
+static void ex_app_kbdhdr(unsigned char c)
+{
+	switch (c) {
+	case KEY_ESC:
+	case 'e':
+		finish_task(external_app_tid);
+		external_app_tid = 0;
 		break;
 	}
 }
