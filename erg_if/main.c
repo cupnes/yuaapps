@@ -110,7 +110,10 @@ struct image *slide_images[SLIDESHOW_MAX_IMAGES];
 unsigned int num_slide_images;
 unsigned int slide_idx;
 
+static void auto_slideshow_kbdhdr(unsigned char c);
 struct file *e_auto_slideshow;
+unsigned char is_running_auto_slideshow = 0;
+int auto_slideshow_tid;
 
 /* TODO: current_yua */
 
@@ -204,6 +207,15 @@ static void kbc_handler(unsigned char c)
 		return;
 	}
 
+	if (is_running_auto_slideshow) {
+		auto_slideshow_kbdhdr(c);
+		if (!is_running_auto_slideshow) {
+			finish_task(auto_slideshow_tid);
+			redraw();
+		}
+		return;
+	}
+
 	unsigned char next_file_idx;
 	next_file_idx = current_file_idx;
 	switch (c) {
@@ -235,8 +247,9 @@ static void kbc_handler(unsigned char c)
 				slideshow_start();
 			else if (filelist[current_file_idx]
 				 == e_auto_slideshow) {
+				is_running_auto_slideshow = 1;
 				finish_task(urclock_tid);
-				exec_bg(e_auto_slideshow);
+				auto_slideshow_tid = exec_bg(e_auto_slideshow);
 			}
 			else {
 				finish_task(urclock_tid);
@@ -532,5 +545,15 @@ void slideshow_load_slidefile(struct file *slidefile)
 	while (file_read_line(buf, FILE_NAME_LEN, &text)) {
 		struct file *f = open(buf);
 		slide_images[num_slide_images++] = (struct image *)f->data;
+	}
+}
+
+static void auto_slideshow_kbdhdr(unsigned char c)
+{
+	switch (c) {
+	case KEY_ESC:
+	case 'e':
+		is_running_auto_slideshow = 0;
+		break;
 	}
 }
