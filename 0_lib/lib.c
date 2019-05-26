@@ -400,3 +400,8 @@ char *file_read_line(char buf[], unsigned int buf_len, struct textfile *text)
 	text->idx += len + 1;
 	return buf;
 }
+
+unsigned char is_alive(int task_id)
+{
+	return syscall(SYSCALL_IS_ALIVE, task_id, 0, 0);
+}

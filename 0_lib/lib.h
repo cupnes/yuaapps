@@ -62,6 +62,7 @@ enum SYSCCALL_NO {
 	SYSCALL_NIC_RX_EN,
 	SYSCALL_SER_GETC,
 	SYSCALL_SER_PUTC,
+	SYSCALL_IS_ALIVE,
 	MAX_SYSCALL_NUM
 };
 
@@ -340,6 +341,7 @@ unsigned short rand(void);
 char ser_getc(void);
 void ser_putc(char c);
 char *file_read_line(char buf[], unsigned int buf_len, struct textfile *text);
+unsigned char is_alive(int task_id);
 
 extern struct framebuffer *fb;
 
