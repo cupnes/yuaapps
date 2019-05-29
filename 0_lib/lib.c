@@ -339,6 +339,11 @@ void finish_task(int task_id)
 	syscall(SYSCALL_FINISH_TASK, task_id, 0, 0);
 }
 
+void finish_current_task(void)
+{
+	syscall(SYSCALL_FINISH_CURRENT_TASK, 0, 0, 0);
+}
+
 void get_mac(unsigned char *mac)
 {
 #ifndef RUN_LOCAL

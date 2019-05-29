@@ -63,6 +63,7 @@ enum SYSCCALL_NO {
 	SYSCALL_SER_GETC,
 	SYSCALL_SER_PUTC,
 	SYSCALL_IS_ALIVE,
+	SYSCALL_FINISH_CURRENT_TASK,
 	MAX_SYSCALL_NUM
 };
 
@@ -332,6 +333,7 @@ void make_mask_region(unsigned int base_x, unsigned int base_y,
 void get_datetime(struct datetime *dt);
 void sleep(unsigned long long us);
 void finish_task(int task_id);
+void finish_current_task(void);
 void get_mac(unsigned char *mac);
 void nic_rx_enable(void);
 #ifndef RUN_LOCAL
