@@ -10,7 +10,7 @@
 #include <errno.h>
 #endif
 
-#define DISPLAY_TIME_CYCLES	1000000000
+#define WAIT_CYC_US_AFTER_COMP	100000000 /* 100s */
 
 #define EPHEMERAL_PORT_MIN	49152
 
@@ -158,8 +158,8 @@ int main(void)
 
 	ht_disconnect(session);
 
-	volatile unsigned int _wait = DISPLAY_TIME_CYCLES;
-	while (_wait--);
+	while (1)
+		sleep(WAIT_CYC_US_AFTER_COMP);
 
 	return 0;
 }
