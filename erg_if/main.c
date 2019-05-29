@@ -263,6 +263,7 @@ static void kbc_handler(unsigned char c)
 			} else {
 				finish_task(urclock_tid);
 				external_app_tid = exec_bg(filelist[current_file_idx]);
+				return;
 			}
 			break;
 		}
