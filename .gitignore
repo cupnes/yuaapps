@@ -13,6 +13,7 @@ init
 urclock
 vputb
 test
+ap_test_*
 fs
 build
 GPATH
