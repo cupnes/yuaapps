@@ -235,6 +235,11 @@ int exec_bg(struct file *file)
 	return (int)syscall(SYSCALL_ENQ_TASK, (unsigned long long)file, 0, 0);
 }
 
+void exec_ap(struct file *file, unsigned char pnum)
+{
+	syscall(SYSCALL_EXEC, (unsigned long long)file, pnum, 0);
+}
+
 unsigned short receive_packet(void *p_data)
 {
 	return syscall(SYSCALL_RCV_PKT, (unsigned long long)p_data, 0, 0);
