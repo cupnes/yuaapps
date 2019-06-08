@@ -10,7 +10,7 @@
 #define NULL	(void *)0
 #endif
 
-#define MAX_FILES	100
+#define MAX_FILES	1000
 
 #ifndef RUN_LOCAL
 #define SCREEN_WIDTH	640
@@ -329,6 +329,8 @@ void draw_bg(struct file *img);
 void draw_fg(struct file *img);
 void draw_image(struct image *img, unsigned int px, unsigned int py);
 void image_viewer(struct image *img);
+void anime_viewer(struct file *img_list, unsigned int px, unsigned int py,
+		  unsigned long long interval_us);
 void make_mask_region(unsigned int base_x, unsigned int base_y,
 		      unsigned int width, unsigned int height,
 		      struct image *mask);

@@ -306,6 +306,29 @@ void image_viewer(struct image *img)
 	draw_image(img, px, py);
 }
 
+#define ANIMATION_MAX_IMAGES	1000
+void anime_viewer(struct file *img_list, unsigned int px, unsigned int py,
+		  unsigned long long interval_us)
+{
+	unsigned int num_imgs = 0;
+	struct image *imgs[ANIMATION_MAX_IMAGES];
+
+	/* load images */
+	struct textfile text = {0, img_list};
+	char img_name_buf[FILE_NAME_LEN];
+	while (file_read_line(img_name_buf, FILE_NAME_LEN, &text)) {
+		struct file *f = open(img_name_buf);
+		imgs[num_imgs++] = (struct image *)f->data;
+	}
+
+	/* view */
+	unsigned int i;
+	for (i = 0; i < num_imgs; i++) {
+		draw_image(imgs[i], px, py);
+		sleep(interval_us);
+	}
+}
+
 void make_mask_region(unsigned int base_x, unsigned int base_y,
 		      unsigned int width, unsigned int height,
 		      struct image *mask)
