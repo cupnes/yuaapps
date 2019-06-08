@@ -88,7 +88,7 @@ char osunc_file_names[OSUNC_NUM_SLIDES][10] = {
 struct file *osunc_files[OSUNC_NUM_SLIDES];
 unsigned int osunc_idx;
 
-#define SLIDESHOW_MAX_IMAGES	100
+#define SLIDESHOW_MAX_IMAGES	1000
 enum {
 	SS_SELECTOR_MODE,
 	SS_VIEWER_MODE,
