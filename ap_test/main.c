@@ -11,8 +11,8 @@ int main(void)
 	putchar('0');
 
 	exec_ap(open("ap_test_1"), 1);
-	exec_ap(open("ap_test_2"), 2);
-	exec_ap(open("ap_test_3"), 3);
+	/* exec_ap(open("ap_test_2"), 2); */
+	/* exec_ap(open("ap_test_3"), 3); */
 
 	while (1)
 		sleep(WAIT_CYC_US_AFTER_COMP);
