@@ -13,7 +13,7 @@ int main(void)
 
 static void kbc_handler(char c)
 {
-	putc(c);
+	putchar(c);
 	if (c == '\n')
-		putc('\r');
+		putchar('\r');
 }
