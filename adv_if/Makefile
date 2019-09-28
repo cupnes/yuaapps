@@ -2,6 +2,7 @@ TARGET = init
 CFLAGS = -Wall -Wextra -nostdinc -nostdlib -fno-builtin -fno-common -Iinclude -fPIE
 LDFLAGS = -Map app.map -s -x -T apps.ld -pie
 OBJS = main.o lib.o
+DEPLOY_DIR ?= ../fs
 
 $(TARGET): $(OBJS)
 	ld $(LDFLAGS) -o $@ $+
@@ -12,8 +13,7 @@ $(TARGET): $(OBJS)
 	gcc $(CFLAGS) -c -o $@ $<
 
 deploy: $(TARGET)
-	../../tools/create_fs.sh $(TARGET)
-	mv fs.img ../../../fs/
+	cp $(TARGET) $(DEPLOY_DIR)
 
 clean:
 	rm -f *~ *.o *.map $(TARGET) include/*~
