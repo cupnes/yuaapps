@@ -28,13 +28,16 @@ enum SYSFILE_ID {
 /* other definition */
 #define YUA_WIDTH	250
 #define CURSOR_MASK_SIZE	10240
+#ifdef RUN_QEMU
 /* QEMU */
-/* #define FILELIST_BASE_Y	200 */
-/* #define FILELIST_BASE_X	300 */
+#define FILELIST_BASE_Y	200
+#define FILELIST_BASE_X	300
+#else
 /* x280 */
 #define FILELIST_BASE_Y	256
 #define FILELIST_BASE_X	512
-#define FILELIST_NAME_X	(FILELIST_BASE_X + 10)
+#endif
+#define FILELIST_NAME_X	(FILELIST_BASE_X + FONT_WIDTH)
 #define FILELIST_MAX_NUM	9
 #define BG_R	0
 #define BG_G	0
@@ -147,7 +150,7 @@ static void open_sysfiles(void)
 	/* sysfile_list[SFID_URC_EXE] = open(SFN_URC_EXE); */
 	/* sysfile_list[SFID_URC_WIN] = open(SFN_URC_WIN); */
 	sysfile_list[SFID_LS_WIN] = open(SFN_LS_WIN);
-	/* sysfile_list[SFID_LS_CUR] = open(SFN_LS_CUR); */
+	sysfile_list[SFID_LS_CUR] = open(SFN_LS_CUR);
 }
 
 static void redraw(void)
@@ -176,7 +179,7 @@ static void redraw(void)
 	/* draw_image((struct image *)f->data, 30, 0); */
 
 	ls('e');
-	/* file_cursor_init(); */
+	file_cursor_init();
 
 	/* urclock_tid = exec_bg(sysfile_list[SFID_URC_EXE]); */
 }

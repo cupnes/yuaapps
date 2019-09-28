@@ -3,6 +3,9 @@ CFLAGS = -Wall -Wextra -nostdinc -nostdlib -fno-builtin -fno-common -Iinclude -f
 LDFLAGS = -Map app.map -s -x -T apps.ld -pie
 OBJS = main.o lib.o
 DEPLOY_DIR ?= ../fs
+ifdef RUN_QEMU
+	CFLAGS += -DRUN_QEMU
+endif
 
 $(TARGET): $(OBJS)
 	ld $(LDFLAGS) -o $@ $+
