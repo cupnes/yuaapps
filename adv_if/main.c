@@ -158,8 +158,8 @@ static void redraw(void)
 
 	draw_bg(sysfile_list[SFID_BG_IMG]);
 
-	/* if (exec_counter >= GENIUS_TH) */
-	/* 	is_megane = 1; */
+	if (exec_counter >= GENIUS_TH)
+		is_megane = 1;
 
 	/* struct file *f; */
 	/* if (!is_43) { */
@@ -198,30 +198,30 @@ static void kbc_handler(unsigned char c)
 		return;
 	}
 
-	/* if (is_running_osunc) { */
-	/* 	osunc_kbdhdr(c); */
-	/* 	if (!is_running_osunc) */
-	/* 		redraw(); */
-	/* 	return; */
-	/* } */
+	if (is_running_osunc) {
+		osunc_kbdhdr(c);
+		if (!is_running_osunc)
+			redraw();
+		return;
+	}
 
-	/* if (is_running_slideshow) { */
-	/* 	slideshow_kbdhdr(c); */
-	/* 	if (!is_running_slideshow) { */
-	/* 		ls('e'); */
-	/* 		file_cursor_init(); */
-	/* 	} */
-	/* 	return; */
-	/* } */
+	if (is_running_slideshow) {
+		slideshow_kbdhdr(c);
+		if (!is_running_slideshow) {
+			ls('e');
+			file_cursor_init();
+		}
+		return;
+	}
 
-	/* if (is_running_auto_slideshow) { */
-	/* 	auto_slideshow_kbdhdr(c); */
-	/* 	if (!is_running_auto_slideshow) { */
-	/* 		finish_task(auto_slideshow_tid); */
-	/* 		redraw(); */
-	/* 	} */
-	/* 	return; */
-	/* } */
+	if (is_running_auto_slideshow) {
+		auto_slideshow_kbdhdr(c);
+		if (!is_running_auto_slideshow) {
+			finish_task(auto_slideshow_tid);
+			redraw();
+		}
+		return;
+	}
 
 	if (external_app_tid && is_alive(external_app_tid)) {
 		ex_app_kbdhdr(c);
@@ -349,8 +349,8 @@ static void ls(char prefix)
 	struct file *f[MAX_FILES];
 	unsigned long long num_files = get_files(f);
 
-	f[num_files] = &e_osunc;
-	num_files++;
+	/* f[num_files] = &e_osunc; */
+	/* num_files++; */
 
 	f[num_files] = &e_slideshow;
 	num_files++;
