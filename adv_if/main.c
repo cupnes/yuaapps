@@ -123,9 +123,9 @@ int external_app_tid = 0;
 int main(void)
 {
 	open_sysfiles();
-	e_auto_slideshow = open("e.auto_slideshow");
+	/* e_auto_slideshow = open("e.auto_slideshow"); */
 	/* current_yua = sysfile_list[SFID_YUA_IMG]; */
-	osunc_init();
+	/* osunc_init(); */
 
 	redraw();
 
@@ -136,45 +136,45 @@ static void open_sysfiles(void)
 {
 	sysfile_list[SFID_INIT_EXE] = open(SFN_INIT_EXE);
 	sysfile_list[SFID_BG_IMG] = open(SFN_BG_IMG);
-	sysfile_list[SFID_YUA_IMG] = open(SFN_YUA_IMG);
-	sysfile_list[SFID_YUAM_IMG] = open(SFN_YUAM_IMG);
-	sysfile_list[SFID_YUA43_IMG] = open(SFN_YUA43_IMG);
-	sysfile_list[SFID_YUAM43_IMG] = open(SFN_YUAM43_IMG);
-	sysfile_list[SFID_URC_EXE] = open(SFN_URC_EXE);
-	sysfile_list[SFID_URC_WIN] = open(SFN_URC_WIN);
+	/* sysfile_list[SFID_YUA_IMG] = open(SFN_YUA_IMG); */
+	/* sysfile_list[SFID_YUAM_IMG] = open(SFN_YUAM_IMG); */
+	/* sysfile_list[SFID_YUA43_IMG] = open(SFN_YUA43_IMG); */
+	/* sysfile_list[SFID_YUAM43_IMG] = open(SFN_YUAM43_IMG); */
+	/* sysfile_list[SFID_URC_EXE] = open(SFN_URC_EXE); */
+	/* sysfile_list[SFID_URC_WIN] = open(SFN_URC_WIN); */
 	sysfile_list[SFID_LS_WIN] = open(SFN_LS_WIN);
-	sysfile_list[SFID_LS_CUR] = open(SFN_LS_CUR);
+	/* sysfile_list[SFID_LS_CUR] = open(SFN_LS_CUR); */
 }
 
 static void redraw(void)
 {
-	set_kbc_handler(kbc_handler);
+	/* set_kbc_handler(kbc_handler); */
 
 	set_bg(BG_R, BG_G, BG_B);
 
 	draw_bg(sysfile_list[SFID_BG_IMG]);
 
-	if (exec_counter >= GENIUS_TH)
-		is_megane = 1;
+	/* if (exec_counter >= GENIUS_TH) */
+	/* 	is_megane = 1; */
 
-	struct file *f;
-	if (!is_43) {
-		if (!is_megane)
-			f = sysfile_list[SFID_YUA_IMG];
-		else
-			f = sysfile_list[SFID_YUAM_IMG];
-	} else {
-		if (!is_megane)
-			f = sysfile_list[SFID_YUA43_IMG];
-		else
-			f = sysfile_list[SFID_YUAM43_IMG];
-	}
-	draw_image((struct image *)f->data, 30, 0);
+	/* struct file *f; */
+	/* if (!is_43) { */
+	/* 	if (!is_megane) */
+	/* 		f = sysfile_list[SFID_YUA_IMG]; */
+	/* 	else */
+	/* 		f = sysfile_list[SFID_YUAM_IMG]; */
+	/* } else { */
+	/* 	if (!is_megane) */
+	/* 		f = sysfile_list[SFID_YUA43_IMG]; */
+	/* 	else */
+	/* 		f = sysfile_list[SFID_YUAM43_IMG]; */
+	/* } */
+	/* draw_image((struct image *)f->data, 30, 0); */
 
 	ls('e');
-	file_cursor_init();
+	/* file_cursor_init(); */
 
-	urclock_tid = exec_bg(sysfile_list[SFID_URC_EXE]);
+	/* urclock_tid = exec_bg(sysfile_list[SFID_URC_EXE]); */
 }
 
 static void view_image(struct file *img_file)
