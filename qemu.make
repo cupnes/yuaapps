@@ -1,6 +1,6 @@
 TARGET = fs.img
 WORK_DIR = fs_qemu
-FILES = init e.test bg.bgra lsbg.bgra
+FILES = init e.test bg.bgra lsbg.bgra i.cursor
 FS_DIR ?= ../fs
 ifdef NO_GRAPHIC
 	QEMU_ADDITIONAL_ARGS += --nographic
@@ -13,7 +13,7 @@ $(WORK_DIR)/$(TARGET): $(addprefix $(WORK_DIR)/, $(FILES))
 	cd $(WORK_DIR) && ../tools/create_fs.sh $(FILES)
 
 $(WORK_DIR)/init:
-	make -C adv_if deploy DEPLOY_DIR=../$(WORK_DIR)
+	make -C adv_if deploy DEPLOY_DIR=../$(WORK_DIR) RUN_QEMU=true
 
 deploy: $(WORK_DIR)/$(TARGET)
 	cp $< $(FS_DIR)

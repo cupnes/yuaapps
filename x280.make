@@ -1,6 +1,6 @@
 TARGET = fs.img
 WORK_DIR = fs_x280
-FILES = init e.test bg.bgra lsbg.bgra
+FILES = init e.test bg.bgra lsbg.bgra i.cursor
 TARGET_DEV ?= /dev/sdb1
 MOUNT_POINT ?= $(WORK_DIR)/mnt
 
@@ -30,6 +30,6 @@ run: deploy
 
 clean:
 	make -C adv_if clean
-	rm -f *~ $(WORK_DIR)/*~ $(WORK_DIR)/init $(WORK_DIR)/$(TARGET)
+	rm -rf *~ $(WORK_DIR)/*~ $(WORK_DIR)/init $(WORK_DIR)/$(TARGET) $(WORK_DIR)/mnt
 
 .PHONY: deploy run clean
