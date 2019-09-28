@@ -16,7 +16,7 @@ $(WORK_DIR)/init:
 	make -C adv_if deploy DEPLOY_DIR=../$(WORK_DIR)
 
 deploy: $(WORK_DIR)/$(TARGET)
-	cp $(WORK_DIR)/$(TARGET) $(FS_DIR)
+	cp $< $(FS_DIR)
 
 run: deploy
 	qemu-system-x86_64 -m 4G -enable-kvm \
