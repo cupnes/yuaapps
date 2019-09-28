@@ -28,8 +28,12 @@ enum SYSFILE_ID {
 /* other definition */
 #define YUA_WIDTH	250
 #define CURSOR_MASK_SIZE	10240
-#define FILELIST_BASE_Y	160
-#define FILELIST_BASE_X	240
+/* QEMU */
+/* #define FILELIST_BASE_Y	200 */
+/* #define FILELIST_BASE_X	300 */
+/* x280 */
+#define FILELIST_BASE_Y	256
+#define FILELIST_BASE_X	512
 #define FILELIST_NAME_X	(FILELIST_BASE_X + 10)
 #define FILELIST_MAX_NUM	9
 #define BG_R	0
