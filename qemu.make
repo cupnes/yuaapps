@@ -1,6 +1,6 @@
 TARGET = fs.img
 WORK_DIR = fs_qemu
-FILES = init e.test bg.bgra lsbg.bgra i.cursor
+FILES = init urclock e.test bg.bgra lsbg.bgra urclockbg.bgra i.cursor
 FS_DIR ?= ../fs
 ifdef NO_GRAPHIC
 	QEMU_ADDITIONAL_ARGS += --nographic
@@ -15,6 +15,9 @@ $(WORK_DIR)/$(TARGET): $(addprefix $(WORK_DIR)/, $(FILES))
 $(WORK_DIR)/init:
 	make -C adv_if deploy DEPLOY_DIR=../$(WORK_DIR) RUN_QEMU=true
 
+$(WORK_DIR)/urclock:
+	make -C urclock deploy DEPLOY_DIR=../$(WORK_DIR) RUN_QEMU=true
+
 deploy: $(WORK_DIR)/$(TARGET)
 	cp $< $(FS_DIR)
 
@@ -27,6 +30,8 @@ run: deploy
 
 clean:
 	make -C adv_if clean
-	rm -f *~ $(WORK_DIR)/*~ $(WORK_DIR)/init $(WORK_DIR)/$(TARGET)
+	make -C urclock clean
+	rm -f *~ $(WORK_DIR)/*~ $(WORK_DIR)/init $(WORK_DIR)/urclock \
+		$(WORK_DIR)/$(TARGET)
 
 .PHONY: deploy run clean

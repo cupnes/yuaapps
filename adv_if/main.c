@@ -8,7 +8,6 @@
 #define SFN_YUA43_IMG	"i.yua0143"
 #define SFN_YUAM43_IMG	"i.yuam43"
 #define SFN_URC_EXE	"urclock"
-#define SFN_URC_WIN	"urclockbg.bgra"
 #define SFN_LS_WIN	"lsbg.bgra"
 #define SFN_LS_CUR	"i.cursor"
 enum SYSFILE_ID {
@@ -19,7 +18,6 @@ enum SYSFILE_ID {
 	SFID_YUA43_IMG,
 	SFID_YUAM43_IMG,
 	SFID_URC_EXE,
-	SFID_URC_WIN,
 	SFID_LS_WIN,
 	SFID_LS_CUR,
 	SFID_MAX
@@ -147,8 +145,7 @@ static void open_sysfiles(void)
 	/* sysfile_list[SFID_YUAM_IMG] = open(SFN_YUAM_IMG); */
 	/* sysfile_list[SFID_YUA43_IMG] = open(SFN_YUA43_IMG); */
 	/* sysfile_list[SFID_YUAM43_IMG] = open(SFN_YUAM43_IMG); */
-	/* sysfile_list[SFID_URC_EXE] = open(SFN_URC_EXE); */
-	/* sysfile_list[SFID_URC_WIN] = open(SFN_URC_WIN); */
+	sysfile_list[SFID_URC_EXE] = open(SFN_URC_EXE);
 	sysfile_list[SFID_LS_WIN] = open(SFN_LS_WIN);
 	sysfile_list[SFID_LS_CUR] = open(SFN_LS_CUR);
 }
@@ -181,7 +178,7 @@ static void redraw(void)
 	ls('e');
 	file_cursor_init();
 
-	/* urclock_tid = exec_bg(sysfile_list[SFID_URC_EXE]); */
+	urclock_tid = exec_bg(sysfile_list[SFID_URC_EXE]);
 }
 
 static void view_image(struct file *img_file)

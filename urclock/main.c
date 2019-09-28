@@ -1,7 +1,12 @@
 #include <lib.h>
 
-#define BASE_X	385
-#define BASE_Y	15
+#ifdef RUN_QEMU
+#define BASE_X	500
+#define BASE_Y	25
+#else
+#define BASE_X	853
+#define BASE_Y	32
+#endif
 #define CHAR_MASK_SIZE	(sizeof(struct image) + ((FONT_WIDTH * 2) * FONT_HEIGHT * sizeof(struct pixelformat)))
 
 unsigned char char_mask_data[CHAR_MASK_SIZE];

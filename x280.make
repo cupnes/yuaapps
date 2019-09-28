@@ -1,6 +1,6 @@
 TARGET = fs.img
 WORK_DIR = fs_x280
-FILES = init e.test bg.bgra lsbg.bgra i.cursor
+FILES = init urclock e.test bg.bgra lsbg.bgra urclockbg.bgra i.cursor
 TARGET_DEV ?= /dev/sdb1
 MOUNT_POINT ?= $(WORK_DIR)/mnt
 
@@ -9,6 +9,9 @@ $(WORK_DIR)/$(TARGET): $(addprefix $(WORK_DIR)/, $(FILES))
 
 $(WORK_DIR)/init:
 	make -C adv_if deploy DEPLOY_DIR=../$(WORK_DIR)
+
+$(WORK_DIR)/urclock:
+	make -C urclock deploy DEPLOY_DIR=../$(WORK_DIR)
 
 deploy: $(WORK_DIR)/$(TARGET)
 	mkdir -p $(MOUNT_POINT)
@@ -30,6 +33,8 @@ run: deploy
 
 clean:
 	make -C adv_if clean
-	rm -rf *~ $(WORK_DIR)/*~ $(WORK_DIR)/init $(WORK_DIR)/$(TARGET) $(WORK_DIR)/mnt
+	make -C urclock clean
+	rm -rf *~ $(WORK_DIR)/*~ $(WORK_DIR)/init $(WORK_DIR)/urclock \
+		$(WORK_DIR)/$(TARGET) $(WORK_DIR)/mnt
 
 .PHONY: deploy run clean
