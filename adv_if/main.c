@@ -28,8 +28,8 @@ enum SYSFILE_ID {
 #define CURSOR_MASK_SIZE	10240
 #ifdef RUN_QEMU
 /* QEMU */
-#define FILELIST_BASE_Y	200
-#define FILELIST_BASE_X	300
+#define FILELIST_BASE_Y	160
+#define FILELIST_BASE_X	240
 #else
 /* x280 */
 #define FILELIST_BASE_Y	256

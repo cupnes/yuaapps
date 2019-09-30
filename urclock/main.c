@@ -1,8 +1,8 @@
 #include <lib.h>
 
 #ifdef RUN_QEMU
-#define BASE_X	500
-#define BASE_Y	25
+#define BASE_X	370
+#define BASE_Y	20
 #else
 #define BASE_X	853
 #define BASE_Y	32
