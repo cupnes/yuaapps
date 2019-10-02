@@ -432,22 +432,22 @@ static void slideshow_redraw(void)
 {
 	draw_bg(sysfile_list[SFID_BG_IMG]);
 
-	if (exec_counter >= GENIUS_TH)
-		is_megane = 1;
+	/* if (exec_counter >= GENIUS_TH) */
+	/* 	is_megane = 1; */
 
-	struct file *f;
-	if (!is_43) {
-		if (!is_megane)
-			f = sysfile_list[SFID_YUA_IMG];
-		else
-			f = sysfile_list[SFID_YUAM_IMG];
-	} else {
-		if (!is_megane)
-			f = sysfile_list[SFID_YUA43_IMG];
-		else
-			f = sysfile_list[SFID_YUAM43_IMG];
-	}
-	draw_image((struct image *)f->data, 30, 0);
+	/* struct file *f; */
+	/* if (!is_43) { */
+	/* 	if (!is_megane) */
+	/* 		f = sysfile_list[SFID_YUA_IMG]; */
+	/* 	else */
+	/* 		f = sysfile_list[SFID_YUAM_IMG]; */
+	/* } else { */
+	/* 	if (!is_megane) */
+	/* 		f = sysfile_list[SFID_YUA43_IMG]; */
+	/* 	else */
+	/* 		f = sysfile_list[SFID_YUAM43_IMG]; */
+	/* } */
+	/* draw_image((struct image *)f->data, 30, 0); */
 
 	ls('s');
 	slideshow_cursor_init();
