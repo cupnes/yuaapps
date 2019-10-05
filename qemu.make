@@ -1,9 +1,9 @@
 TARGET = fs.img
 WORK_DIR = fs_qemu
 FILES = init urclock bg.bgra lsbg.bgra urclockbg.bgra
-FILES += $(notdir $(shell ls fs_qemu/e.*))
-FILES += $(notdir $(shell ls fs_qemu/s.*))
-FILES += $(notdir $(shell ls fs_qemu/i.*))
+FILES += $(notdir $(shell ls fs_qemu/e.* 2>/dev/null || true))
+FILES += $(notdir $(shell ls fs_qemu/s.* 2>/dev/null || true))
+FILES += $(notdir $(shell ls fs_qemu/i.* 2>/dev/null || true))
 FS_DIR ?= ../fs
 ifdef NO_GRAPHIC
 	QEMU_ADDITIONAL_ARGS += --nographic
