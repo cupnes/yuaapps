@@ -2,10 +2,10 @@
 #include <stdio.h>
 
 void cell_init(struct cell *c);
-void func_hello(void);
+void func_hello2(void);
 
 struct func_protein hello_protein = {
-	.func = func_hello
+	.func = func_hello2
 };
 
 int main(void)
@@ -22,7 +22,7 @@ void cell_init(struct cell *c)
 	c->p_list = &hello_protein;
 }
 
-void func_hello(void)
+void func_hello2(void)
 {
 	puts("Hello world!");
 }
