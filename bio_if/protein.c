@@ -2,8 +2,11 @@
 
 #include <protein.h>
 
-unsigned long long func_hello(unsigned long long, unsigned long long,
-			      unsigned long long, unsigned long long);
+unsigned long long func_hello(
+	unsigned long long _t1 __attribute__((unused)),
+	unsigned long long _t2 __attribute__((unused)),
+	unsigned long long _t3 __attribute__((unused)),
+	unsigned long long _t4 __attribute__((unused)));
 
 struct func_protein fp_samples[MAX_FP_ID] = {
 	{
@@ -19,8 +22,11 @@ struct func_protein fp_samples[MAX_FP_ID] = {
 	}
 };
 
-unsigned long long func_hello(unsigned long long _t1, unsigned long long _t2,
-			      unsigned long long _t3, unsigned long long _t4)
+unsigned long long func_hello(
+	unsigned long long _t1 __attribute__((unused)),
+	unsigned long long _t2 __attribute__((unused)),
+	unsigned long long _t3 __attribute__((unused)),
+	unsigned long long _t4 __attribute__((unused)))
 {
 	puts("Hello world!");
 	return 0;
