@@ -1,33 +1,19 @@
-#include <stdio.h>
-
+#include <element.h>
+#include <compound.h>
 #include <protein.h>
+#include <common.h>
 
-unsigned long long func_hello(
-	unsigned long long _t1 __attribute__((unused)),
-	unsigned long long _t2 __attribute__((unused)),
-	unsigned long long _t3 __attribute__((unused)),
-	unsigned long long _t4 __attribute__((unused)));
+#ifdef IS_SIM
+#include <string.h>
+#endif
 
-struct func_protein fp_samples[MAX_FP_ID] = {
-	{
-		.type = P_TYPE_FUNC,
-		.id = FP_ID_HELLO,
-		.func = func_hello,
-		.args = {
-			{ .d_type = DP_TYPE_NONE },
-			{ .d_type = DP_TYPE_NONE },
-			{ .d_type = DP_TYPE_NONE },
-			{ .d_type = DP_TYPE_NONE }
-		}
-	}
-};
+#define MAX_COMBINED_ELEMENTS	100
 
-unsigned long long func_hello(
-	unsigned long long _t1 __attribute__((unused)),
-	unsigned long long _t2 __attribute__((unused)),
-	unsigned long long _t3 __attribute__((unused)),
-	unsigned long long _t4 __attribute__((unused)))
+struct protein protein_pool[MAX_POOL_PROTEINS];
+
+void protein_pool_init(void)
 {
-	puts("Hello world!");
-	return 0;
+	unsigned int i;
+	for (i = 0; i < MAX_POOL_PROTEINS; i++)
+		protein_pool[i].list.next = NULL;
 }
