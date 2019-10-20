@@ -1,6 +1,7 @@
 #pragma once
 
 #include <element.h>
+#include <body.h>
 #include <common.h>
 
 #define MAX_POOL_COMPOUNDS	100
@@ -15,4 +16,5 @@ struct compound {
 extern struct compound compound_pool[MAX_POOL_COMPOUNDS];
 
 void compound_pool_init(void);
-struct compound *compound_alloc(void);
+struct compound *compound_create(void);
+struct compound *compound_create_with_data(bio_data_t data);

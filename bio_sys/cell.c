@@ -8,13 +8,22 @@
 
 unsigned char bond_buf[BOND_BUF_SIZE];
 
-void cell_create(struct cell *c, nucleotide_t *dna, size_t dna_len)
+void cell_create(struct cell *cell, nucleotide_t *dna, size_t dna_len)
 {
 	size_t i;
 	for (i = 0; i < dna_len; i++)
 		c->dna[i] = dna[i];
+}
 
-	
+void cell_run(struct cell *cell, struct compound *vessel)
+{
+	/* 器官の管(vessel)に必要とする化合物があれば取得 */
+	/* TODO: まずは引数となる値の取得のみ実装する */
+	/* TODO: T.B.D: 成長と分裂のための化合物取得(要DNA実装) */
+
+	/* タンパク質の反応に必要な化合物が揃っていれば化学反応を起こす */
+
+	/* 化学反応を起こした場合、生成物を管(vessel)へ送出する */
 }
 
 struct compound *reaction(struct cell *cell)
