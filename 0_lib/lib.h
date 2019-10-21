@@ -302,6 +302,7 @@ void puts(char *s);
 #endif
 void putd(unsigned long long val, unsigned char num_digits);
 void puth(unsigned long long val, unsigned char num_digits);
+void die(char *msg);
 #ifndef RUN_LOCAL
 char getchar(void);
 #endif

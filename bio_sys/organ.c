@@ -2,6 +2,17 @@
 #include <organ.h>
 #include <lib.h>
 
+struct organ organ_pool[MAX_POOL_ORGANS];
+unsigned char organ_pool_is_used[MAX_POOL_ORGANS];
+unsigned int is_organ_creation;
+
+void organ_pool_init(void)
+{
+	unsigned int i;
+	for (i = 0; i < MAX_POOL_ORGANS; i++)
+		organ_pool_is_used[i] = FALSE;
+}
+
 void organ_run(struct organ *orgn)
 {
 	struct cell *cell;

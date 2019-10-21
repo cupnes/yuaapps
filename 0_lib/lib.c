@@ -153,6 +153,15 @@ void puth(unsigned long long val, unsigned char num_digits)
 #endif
 }
 
+void die(char *msg)
+{
+	puts("error: ");
+	puts(msg);
+#ifndef RUN_LOCAL
+	puts("\r\n");
+#endif
+}
+
 #ifndef RUN_LOCAL
 char getchar(void)
 {

@@ -13,29 +13,51 @@ protein3: opcode=0xc3     , operand=NULL	ret
 struct body *incrementer_create_body(void)
 {
 	/* 空の細胞を生成 */
-	struct cell *cell = cell_create(void);
+	struct cell *cell = cell_create();
 	if (cell == NULL)
 		die("incrementer_create_body: can't create cell.");
 
 	/* タンパク質のリスト(関数)を生成し細胞へ配置 */
-	element_t tmp_opcode[2], tmp_operand[1];
-	struct protein *tmp_prot[3];
+	element_t elem_opcode[2], elem_operand[1];
+	struct compound *comp_opcode, *comp_operand;
+	struct protein *prot[3];
 
-	tmp_opcode[0] = 0x48; tmp_opcode[1] = 0x89;
-	tmp_operand[0] = 0xf8;
-	tmp_prot[0] = protein_create_with_code(tmp_opcode, 2, tmp_operand, 1);
+	elem_opcode[0] = 0x48; elem_opcode[1] = 0x89;
+	comp_opcode = compound_create_with_elements(elem_opcode, 2);
+	if (comp_opcode == NULL)
+		die("incrementer_create_body: can't create opcode0.");
+	elem_operand[0] = 0xf8;
+	comp_operand = compound_create_with_elements(elem_operand, 1);
+	if (comp_operand == NULL)
+		die("incrementer_create_body: can't create operand0.");
+	prot[0] = protein_create_with_compounds(comp_opcode, comp_operand);
+	if (prot[0] == NULL)
+		die("incrementer_create_body: can't create prot0.");
 
-	tmp_opcode[0] = 0x48; tmp_opcode[1] = 0xff;
-	tmp_operand[0] = 0xc0;
-	tmp_prot[1] = protein_create_with_code(tmp_opcode, 2, tmp_operand, 1);
-	tmp_prot[0]->list.next = tmp_prot[1];
+	elem_opcode[0] = 0x48; elem_opcode[1] = 0xff;
+	comp_opcode = compound_create_with_elements(elem_opcode, 2);
+	if (comp_opcode == NULL)
+		die("incrementer_create_body: can't create opcode1.");
+	elem_operand[0] = 0xc0;
+	comp_operand = compound_create_with_elements(elem_operand, 1);
+	if (comp_operand == NULL)
+		die("incrementer_create_body: can't create operand1.");
+	prot[1] = protein_create_with_compounds(comp_opcode, comp_operand);
+	if (prot[1] == NULL)
+		die("incrementer_create_body: can't create prot1.");
+	prot[0]->list.next = prot[1];
 
-	tmp_opcode[0] = 0xc3;
-	tmp_prot[2] = protein_create_with_code(tmp_opcode, 1, NULL, 0);
-	tmp_prot[1]->list.next = tmp_prot[2];
-	tmp_prot[2]->list.next = NULL;
+	elem_opcode[0] = 0xc3;
+	comp_opcode = compound_create_with_elements(elem_opcode, 1);
+	if (comp_opcode == NULL)
+		die("incrementer_create_body: can't create opcode2.");
+	prot[2] = protein_create_with_compounds(comp_opcode, NULL);
+	if (prot[2] == NULL)
+		die("incrementer_create_body: can't create prot2.");
+	prot[1]->list.next = prot[2];
+	prot[2]->list.next = NULL;
 
-	cell->prot_list = tmp_prot;
+	cell->prot_list = prot;
 
 	/* 結合する化合物の数(引数の数)を細胞へ設定 */
 	cell->num_args = 1;

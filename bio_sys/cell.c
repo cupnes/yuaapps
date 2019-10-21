@@ -1,18 +1,41 @@
-#include <common.h>
-
-#ifdef IS_SIM
-#include <string.h>
-#endif
+#include <compound.h>
+#include <protein.h>
+#include <cell.h>
+#include <lib.h>
 
 #define BOND_BUF_SIZE	100
 
+struct cell cell_pool[MAX_POOL_CELLS];
+unsigned int is_cell_creation;
 unsigned char bond_buf[BOND_BUF_SIZE];
 
-void cell_create(struct cell *cell, nucleotide_t *dna, size_t dna_len)
+void cell_pool_init(void)
 {
-	size_t i;
-	for (i = 0; i < dna_len; i++)
-		c->dna[i] = dna[i];
+	unsigned int i;
+	for (i = 0; i < MAX_POOL_CELLS; i++)
+		cell_pool[i].is_destroyed = TRUE;
+}
+
+struct cell *cell_create(void)
+{
+	spin_lock(&is_cell_creation);
+
+	unsigned int i;
+	for (i = 0; i < MAX_POOL_CELLS; i++) {
+		if (cell_pool[i].is_destroyed == TRUE) {
+			cell_pool[i].is_destroyed = FALSE;
+			spin_unlock(&is_cell_creation);
+			cell_pool[i].list.next = NULL;
+			cell_pool[i].life_duration = DEFAULT_LIFE_DURATION;
+			cell_pool[i].prot_list = NULL;
+			cell_pool[i].prot_store_list = NULL;
+			cell_pool[i].num_args = 0;
+			return &cell_pool[i];
+		}
+	}
+
+	spin_unlock(&is_cell_creation);
+	return NULL;
 }
 
 void cell_run(struct cell *cell, struct compound *vessel)

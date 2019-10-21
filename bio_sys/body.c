@@ -2,6 +2,17 @@
 #include <body.h>
 #include <lib.h>
 
+struct body body_pool[MAX_POOL_BODIES];
+unsigned char body_pool_is_used[MAX_POOL_BODIES];
+unsigned int is_body_creation;
+
+void body_pool_init(void)
+{
+	unsigned int i;
+	for (i = 0; i < MAX_POOL_BODIES; i++)
+		body_pool_is_used[i] = FALSE;
+}
+
 void body_run(struct body *body)
 {
 	/* 各器官で1周期分の生体活動を実施 */
