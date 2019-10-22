@@ -20,5 +20,5 @@ struct body {
 
 void body_pool_init(void);
 struct body *body_create(void);
-struct body *body_create_with_organ(struct organ *orgn_1st_entry);
+struct body *body_create_with_organ(struct singly_list *orgn_1st_entry);
 void body_run(struct body *body);

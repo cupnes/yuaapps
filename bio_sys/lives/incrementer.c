@@ -99,7 +99,7 @@ struct body *incrementer_create_body(void)
 	orgn->vessel_head.next = &comp_init_val->list;
 
 	/* 生体へ器官を配置 */
-	struct body *body = body_create_with_organ(orgn);
+	struct body *body = body_create_with_organ(&orgn->list);
 	if (body == NULL)
 		die("incrementer_create_body: can't create body.");
 

@@ -30,13 +30,13 @@ struct body *body_create(void)
 	return NULL;
 }
 
-struct body *body_create_with_organ(struct organ *orgn_1st_entry)
+struct body *body_create_with_organ(struct singly_list *orgn_1st_entry)
 {
 	struct body *body = body_create();
 	if (body == NULL)
 		return NULL;
 
-	body->orgn_head.next = &orgn_1st_entry->list;
+	body->orgn_head.next = orgn_1st_entry;
 	return body;
 }
 
