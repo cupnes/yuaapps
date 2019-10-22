@@ -10,6 +10,10 @@
 #define NULL	(void *)0
 #endif
 
+#define TRUE	1
+#define FALSE	0
+#define NULL	(void *)0
+
 #define MAX_FILES	1000
 
 #ifndef RUN_LOCAL
@@ -31,6 +35,11 @@
 #define KEY_UP		0x38
 
 #define MIN(A, B)	(((A) <= (B)) ? (A) : (B))
+
+#define CPU_PAUSE()	asm volatile ("pause")
+
+typedef unsigned char bool_t;
+typedef unsigned long long size_t;
 
 enum SYSCCALL_NO {
 	SYSCALL_PUTC,
@@ -351,6 +360,10 @@ char *file_read_line(char buf[], unsigned int buf_len, struct textfile *text);
 unsigned char is_alive(int task_id);
 
 extern struct framebuffer *fb;
+
+/* Spin Lock */
+void spin_lock(unsigned int *lock_flag);
+void spin_unlock(volatile unsigned int *lock_flag);
 
 /* Singly List (Linear) */
 struct singly_list {
