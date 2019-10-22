@@ -47,7 +47,7 @@ struct protein *protein_create_with_compounds(
 	return prot;
 }
 
-unsigned int bond_compounds(struct protein *prot, unsigned char *buf)
+unsigned int protein_bond_compounds(struct protein *prot, unsigned char *buf)
 {
 	unsigned int len = 0;
 

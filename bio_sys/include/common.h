@@ -8,9 +8,5 @@
 typedef unsigned char bool_t;
 typedef unsigned long long size_t;
 
-struct singly_list {
-	struct singly_list *next;
-};
-
 void spin_lock(unsigned int *lock_flag);
 void spin_unlock(volatile unsigned int *lock_flag);

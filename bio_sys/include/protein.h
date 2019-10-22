@@ -22,4 +22,4 @@ void protein_pool_init(void);
 struct protein *protein_create(void);
 struct protein *protein_create_with_compounds(
 	struct compound *opcode, struct compound *operand_list);
-unsigned int bond_compounds(struct protein *prot, unsigned char *buf);
+unsigned int protein_bond_compounds(struct protein *prot, unsigned char *buf);

@@ -447,3 +447,10 @@ unsigned char is_alive(int task_id)
 {
 	return syscall(SYSCALL_IS_ALIVE, task_id, 0, 0);
 }
+
+/* Singly List (Linear) */
+void slist_prepend(struct singly_list *entry, struct singly_list **head)
+{
+	entry->next = *head;
+	*head = entry;
+}

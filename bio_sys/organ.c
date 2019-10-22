@@ -3,14 +3,43 @@
 #include <lib.h>
 
 struct organ organ_pool[MAX_POOL_ORGANS];
-unsigned char organ_pool_is_used[MAX_POOL_ORGANS];
 unsigned int is_organ_creation;
 
 void organ_pool_init(void)
 {
 	unsigned int i;
 	for (i = 0; i < MAX_POOL_ORGANS; i++)
-		organ_pool_is_used[i] = FALSE;
+		organ_pool[i].is_destroyed = TRUE;
+}
+
+struct organ *organ_create(void)
+{
+	spin_lock(&is_organ_creation);
+
+	unsigned int i;
+	for (i = 0; i < MAX_POOL_ORGANS; i++) {
+		if (organ_pool[i].is_destroyed == TRUE) {
+			organ_pool[i].is_destroyed = FALSE;
+			spin_unlock(&is_organ_creation);
+			organ_pool[i].list.next = NULL;
+			organ_pool[i].cell_list = NULL;
+			organ_pool[i].vessel = NULL;
+			return &organ_pool[i];
+		}
+	}
+
+	spin_unlock(&is_organ_creation);
+	return NULL;
+}
+
+struct organ *organ_create_with_cell(struct cell *cell_list)
+{
+	struct organ *orgn = organ_create();
+	if (orgn == NULL)
+		return NULL;
+
+	orgn->cell_list = cell_list;
+	return orgn;
 }
 
 void organ_run(struct organ *orgn)

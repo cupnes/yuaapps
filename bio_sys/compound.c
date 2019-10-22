@@ -53,3 +53,10 @@ struct compound *compound_create_with_data(bio_data_t data)
 	comp->len = sizeof(bio_data_t);
 	return comp;
 }
+
+bool_t compound_is_data(struct compound *comp)
+{
+	if (comp->len == sizeof(bio_data_t))
+		return TRUE;
+	return FALSE;
+}

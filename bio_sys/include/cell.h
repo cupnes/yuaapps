@@ -20,6 +20,9 @@ struct cell {
 	struct protein *prot_store_list;
 	struct compound *args[MAX_CELL_ARGS];
 	unsigned char num_args;
+	bool_t is_can_react;
+	void (*add_to_args_if_need)(
+		struct compound *comp, struct compound *vessel);
 
 	/* DNA */
 
@@ -30,3 +33,4 @@ struct cell {
 void cell_pool_init(void);
 void cell_create(struct cell *cell, nucleotide_t *dna, size_t dna_len);
 void cell_run(struct cell *cell, struct compound *vessel);
+void cell_update_status(struct cell *cell);

@@ -9,6 +9,37 @@ struct cell cell_pool[MAX_POOL_CELLS];
 unsigned int is_cell_creation;
 unsigned char bond_buf[BOND_BUF_SIZE];
 
+static struct compound *react(struct cell *cell)
+{
+	struct compound *product = compound_create();
+	if (product == NULL)
+		return NULL;
+
+	unsigned int idx = 0;
+	struct protein *t_prot;
+	for (t_prot = cell->prot_list; t_prot != NULL;
+	     t_prot = t_prot->list.next)
+		idx += protein_bond_compounds(t_prot, &bond_buf[idx]);
+
+	bio_data_t *t;
+
+	bio_data_t (*func)(bio_data_t, bio_data_t, bio_data_t, bio_data_t);
+	func = (void *)bond_buf;
+	bio_data_t args[MAX_CELL_ARGS];
+	unsigned int i;
+	for (i = 0; i < MAX_CELL_ARGS; i++) {
+		t = (bio_data_t *)cell->args[i]->elements;
+		args[i] = *t;
+	}
+	bio_data_t prod_val = (*func)(args[1], args[2], args[3], args[4]);
+
+	t = (bio_data_t *)product->elements;
+	*t = prod_val;
+	product->len = 8;
+
+	return product;
+}
+
 void cell_pool_init(void)
 {
 	unsigned int i;
@@ -30,6 +61,8 @@ struct cell *cell_create(void)
 			cell_pool[i].prot_list = NULL;
 			cell_pool[i].prot_store_list = NULL;
 			cell_pool[i].num_args = 0;
+			cell_pool[i].is_can_react = FALSE;
+			cell_pool[i].add_to_args_if_need = NULL;
 			return &cell_pool[i];
 		}
 	}
@@ -42,40 +75,24 @@ void cell_run(struct cell *cell, struct compound *vessel)
 {
 	/* 器官の管(vessel)に必要とする化合物があれば取得 */
 	/* TODO: まずは引数となる値の取得のみ実装する */
+	if ((cell->is_can_react == FALSE)
+	    && (cell->add_to_args_if_need != NULL)) {
+		struct compound *comp;
+		for (comp = vessel; comp != NULL; comp = comp->list.next) {
+			cell->add_to_args_if_need(comp, vessel);
+			if (cell->is_can_react == TRUE)
+				break;
+		}
+	}
 	/* TODO: T.B.D: 成長と分裂のための化合物取得(要DNA実装) */
 
-	/* タンパク質の反応に必要な化合物が揃っていれば化学反応を起こす */
+	/* タンパク質の反応に必要な化合物が揃っているか？ */
+	if (cell->is_can_react == TRUE) {
+		/* 反応を起こす */
+		struct compound *product = react(cell);
 
-	/* 化学反応を起こした場合、生成物を管(vessel)へ送出する */
-}
-
-struct compound *reaction(struct cell *cell)
-{
-	struct compound *product = compound_alloc();
-	if (product == NULL)
-		return NULL;
-
-	unsigned int idx = 0;
-	struct protein *t_prot;
-	for (t_prot = cell->prot_list; t_prot != NULL;
-	     t_prot = t_prot->list.next)
-		idx += bond_compounds(t_prot, &bond_buf[idx]);
-
-	data_t *t;
-
-	data_t (*func)(data_t, data_t, data_t, data_t);
-	func = (void *)bond_buf;
-	data_t args[MAX_CELL_ARGS];
-	unsigned int i;
-	for (i = 0; i < MAX_CELL_ARGS; i++) {
-		t = (data_t *)cell->args[i]->elements;
-		args[i] = *t;
+		/* 生成された化合物を管へ追加 */
+		slist_add_to_head((struct singly_list *)product,
+				  (struct singly_list **)&vessel);
 	}
-	data_t prod_val = (*func)(args[1], args[2], args[3], args[4]);
-
-	t = (data_t *)product->elements;
-	*t = prod_val;
-	product->len = 8;
-
-	return product;
 }

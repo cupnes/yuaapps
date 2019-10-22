@@ -352,4 +352,10 @@ unsigned char is_alive(int task_id);
 
 extern struct framebuffer *fb;
 
+/* Singly List (Linear) */
+struct singly_list {
+	struct singly_list *next;
+};
+void slist_prepend(struct singly_list *entry, struct singly_list **head);
+
 #endif
