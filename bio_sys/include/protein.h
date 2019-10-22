@@ -10,7 +10,7 @@ struct protein {
 
 	/* Compounds */
 	struct compound *opcode;
-	struct compound *operand_list;
+	struct singly_list operand_head;
 
 	/* Attributes */
 	bool_t is_destroyed;
@@ -21,5 +21,5 @@ extern struct protein protein_pool[MAX_POOL_PROTEINS];
 void protein_pool_init(void);
 struct protein *protein_create(void);
 struct protein *protein_create_with_compounds(
-	struct compound *opcode, struct compound *operand_list);
+	struct compound *opcode, struct singly_list *operand_1st_entry);
 unsigned int protein_bond_compounds(struct protein *prot, unsigned char *buf);

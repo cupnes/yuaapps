@@ -369,6 +369,8 @@ void spin_unlock(volatile unsigned int *lock_flag);
 struct singly_list {
 	struct singly_list *next;
 };
-void slist_prepend(struct singly_list *entry, struct singly_list **head);
+void slist_prepend(struct singly_list *entry, struct singly_list *head);
+struct singly_list *slist_remove(
+	struct singly_list *entry, struct singly_list *head);
 
 #endif

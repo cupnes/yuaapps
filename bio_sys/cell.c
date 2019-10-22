@@ -16,10 +16,10 @@ static struct compound *react(struct cell *cell)
 		return NULL;
 
 	unsigned int idx = 0;
-	struct protein *t_prot;
-	for (t_prot = cell->prot_list; t_prot != NULL;
-	     t_prot = t_prot->list.next)
-		idx += protein_bond_compounds(t_prot, &bond_buf[idx]);
+	struct protein *prot;
+	for (prot = cell->prot_head.next; prot != NULL;
+	     prot = prot->list.next)
+		idx += protein_bond_compounds(prot, &bond_buf[idx]);
 
 	bio_data_t *t;
 
@@ -58,8 +58,8 @@ struct cell *cell_create(void)
 			spin_unlock(&is_cell_creation);
 			cell_pool[i].list.next = NULL;
 			cell_pool[i].life_duration = DEFAULT_LIFE_DURATION;
-			cell_pool[i].prot_list = NULL;
-			cell_pool[i].prot_store_list = NULL;
+			cell_pool[i].prot_head.next = NULL;
+			cell_pool[i].prot_store_head.next = NULL;
 			cell_pool[i].num_args = 0;
 			cell_pool[i].is_can_react = FALSE;
 			cell_pool[i].add_to_args_if_need = NULL;
@@ -71,15 +71,16 @@ struct cell *cell_create(void)
 	return NULL;
 }
 
-void cell_run(struct cell *cell, struct compound *vessel)
+void cell_run(struct cell *cell, struct singly_list *vessel_head)
 {
 	/* 器官の管(vessel)に必要とする化合物があれば取得 */
 	/* TODO: まずは引数となる値の取得のみ実装する */
 	if ((cell->is_can_react == FALSE)
 	    && (cell->add_to_args_if_need != NULL)) {
 		struct compound *comp;
-		for (comp = vessel; comp != NULL; comp = comp->list.next) {
-			cell->add_to_args_if_need(comp, vessel);
+		for (comp = vessel_head->next; comp != NULL;
+		     comp = comp->list.next) {
+			cell->add_to_args_if_need(cell, comp, vessel_head);
 			if (cell->is_can_react == TRUE)
 				break;
 		}
@@ -93,6 +94,6 @@ void cell_run(struct cell *cell, struct compound *vessel)
 
 		/* 生成された化合物を管へ追加 */
 		slist_add_to_head((struct singly_list *)product,
-				  (struct singly_list **)&vessel);
+				  (struct singly_list *)vessel_head);
 	}
 }

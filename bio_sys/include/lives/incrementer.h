@@ -2,4 +2,4 @@
 
 #include <body.h>
 
-void structure_incrementer(struct body *body);
+struct body *incrementer_create_body(void);

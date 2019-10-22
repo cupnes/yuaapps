@@ -26,7 +26,7 @@ struct protein *protein_create(void)
 			spin_unlock(&is_protein_creation);
 			protein_pool[i].list.next = NULL;
 			protein_pool[i].opcode = NULL;
-			protein_pool[i].operand_list = NULL;
+			protein_pool[i].operand_head.next = NULL;
 			return &protein_pool[i];
 		}
 	}
@@ -36,14 +36,14 @@ struct protein *protein_create(void)
 }
 
 struct protein *protein_create_with_compounds(
-	struct compound *opcode, struct compound *operand_list)
+	struct compound *opcode, struct singly_list *operand_1st_entry)
 {
 	struct protein *prot = protein_create();
 	if (prot == NULL)
 		return NULL;
 
 	prot->opcode = opcode;
-	prot->operand_list = operand_list;
+	prot->operand_head.next = operand_1st_entry;
 	return prot;
 }
 
@@ -56,7 +56,7 @@ unsigned int protein_bond_compounds(struct protein *prot, unsigned char *buf)
 	buf += len;
 
 	struct compound *comp;
-	for (comp = prot->operand_list; comp != NULL;
+	for (comp = prot->operand_head.next; comp != NULL;
 	     comp = comp->list.next) {
 		memcpy(buf, comp->elements, comp->len);
 		len += comp->len;

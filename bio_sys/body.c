@@ -21,7 +21,7 @@ struct body *body_create(void)
 		if (body_pool[i].is_destroyed == TRUE) {
 			body_pool[i].is_destroyed = FALSE;
 			spin_unlock(&is_body_creation);
-			body_pool[i].organ_list = NULL;
+			body_pool[i].orgn_head.next = NULL;
 			return &body_pool[i];
 		}
 	}
@@ -30,23 +30,26 @@ struct body *body_create(void)
 	return NULL;
 }
 
-struct body *body_create_with_organ(struct organ *orgn_list)
+struct body *body_create_with_organ(struct organ *orgn_1st_entry)
 {
 	struct body *body = body_create();
 	if (body == NULL)
 		return NULL;
 
-	body->orgn_list = orgn_list;
+	body->orgn_head.next = &orgn_1st_entry->list;
 	return body;
 }
 
 void body_run(struct body *body)
 {
-	/* 各器官で1周期分の生体活動を実施 */
-	struct organ *orgn;
-	for (orgn = body->orgn_list; orgn != NULL; orgn = orgn->list.next)
-		organ_run(orgn);
+	while (TRUE) {
+		/* 各器官で1周期分の生体活動を実施 */
+		struct organ *orgn;
+		for (orgn = (struct organ *)body->orgn_head.next; orgn != NULL;
+		     orgn = (struct organ *)orgn->list.next)
+			organ_run(orgn);
 
-	/* 次の周期まで待つ */
-	sleep(BODY_CYCLE_US);
+		/* 次の周期まで待つ */
+		sleep(BODY_CYCLE_US);
+	}
 }

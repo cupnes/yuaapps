@@ -12,7 +12,7 @@ typedef unsigned long long bio_data_t;
 
 struct body {
 	/* Organ */
-	struct organ *orgn_list;
+	struct singly_list orgn_head;
 
 	/* Attributes */
 	bool_t is_destroyed;
@@ -20,5 +20,5 @@ struct body {
 
 void body_pool_init(void);
 struct body *body_create(void);
-struct body *body_create_with_organ(struct organ *orgn);
+struct body *body_create_with_organ(struct organ *orgn_1st_entry);
 void body_run(struct body *body);

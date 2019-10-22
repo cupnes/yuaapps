@@ -22,8 +22,8 @@ struct organ *organ_create(void)
 			organ_pool[i].is_destroyed = FALSE;
 			spin_unlock(&is_organ_creation);
 			organ_pool[i].list.next = NULL;
-			organ_pool[i].cell_list = NULL;
-			organ_pool[i].vessel = NULL;
+			organ_pool[i].cell_head.next = NULL;
+			organ_pool[i].vessel_head.next = NULL;
 			return &organ_pool[i];
 		}
 	}
@@ -32,21 +32,21 @@ struct organ *organ_create(void)
 	return NULL;
 }
 
-struct organ *organ_create_with_cell(struct cell *cell_list)
+struct organ *organ_create_with_cell(struct cell *cell_1st_entry)
 {
 	struct organ *orgn = organ_create();
 	if (orgn == NULL)
 		return NULL;
 
-	orgn->cell_list = cell_list;
+	orgn->cell_head.next = cell_1st_entry;
 	return orgn;
 }
 
 void organ_run(struct organ *orgn)
 {
 	struct cell *cell;
-	for (cell = orgn->cell_list; cell != NULL; cell = cell->list.next)
-		cell_run(cell, orgn->vessel);
+	for (cell = orgn->cell_head.next; cell != NULL; cell = cell->list.next)
+		cell_run(cell, &orgn->vessel_head);
 
 	/* TODO: DNAを実装できたら、組織の層を追加して
 	 *       組織の層から細胞へ細胞分裂を指示するようにする

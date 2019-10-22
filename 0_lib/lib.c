@@ -159,6 +159,7 @@ void die(char *msg)
 	puts(msg);
 #ifndef RUN_LOCAL
 	puts("\r\n");
+	while (TRUE);
 #endif
 }
 
@@ -472,8 +473,27 @@ void spin_unlock(volatile unsigned int *lock_flag)
 }
 
 /* Singly List (Linear) */
-void slist_prepend(struct singly_list *entry, struct singly_list **head)
+void slist_prepend(struct singly_list *entry, struct singly_list *head)
 {
-	entry->next = *head;
-	*head = entry;
+	entry->next = head->next;
+	head->next = entry;
+}
+
+struct singly_list *slist_remove(
+	struct singly_list *entry, struct singly_list *head)
+{
+	struct singly_list *prev = head;
+	struct singly_list *t;
+	for (t = head->next; t != NULL; t = t->next) {
+		if (t == entry)
+			break;
+
+		prev = t;
+	}
+
+	if (t == NULL)
+		return NULL;
+
+	prev->next = t->next;
+	return t;
 }

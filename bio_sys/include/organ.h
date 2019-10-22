@@ -11,10 +11,10 @@ struct organ {
 	struct singly_list list;
 
 	/* Cells (Cell List) */
-	struct cell *cell_list;
+	struct singly_list cell_head;
 
 	/* Vessel (Compound List) */
-	struct compound *vessel;
+	struct singly_list vessel_head;
 
 	/* Attributes */
 	bool_t is_destroyed;
