@@ -38,15 +38,15 @@ struct organ *organ_create_with_cell(struct cell *cell_1st_entry)
 	if (orgn == NULL)
 		return NULL;
 
-	orgn->cell_head.next = cell_1st_entry;
+	orgn->cell_head.next = &cell_1st_entry->list;
 	return orgn;
 }
 
 void organ_run(struct organ *orgn)
 {
-	struct cell *cell;
-	for (cell = orgn->cell_head.next; cell != NULL; cell = cell->list.next)
-		cell_run(cell, &orgn->vessel_head);
+	struct singly_list *cell;
+	for (cell = orgn->cell_head.next; cell != NULL; cell = cell->next)
+		cell_run((struct cell *)cell, &orgn->vessel_head);
 
 	/* TODO: DNAを実装できたら、組織の層を追加して
 	 *       組織の層から細胞へ細胞分裂を指示するようにする

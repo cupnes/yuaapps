@@ -50,6 +50,8 @@ void body_run(struct body *body)
 			organ_run(orgn);
 
 		/* 次の周期まで待つ */
-		sleep(BODY_CYCLE_US);
+		/* sleep(BODY_CYCLE_US); */
+		unsigned long long _wait = BODY_CYCLE_US;
+		while (_wait--);
 	}
 }

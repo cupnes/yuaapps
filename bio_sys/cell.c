@@ -16,10 +16,9 @@ static struct compound *react(struct cell *cell)
 		return NULL;
 
 	unsigned int idx = 0;
-	struct protein *prot;
-	for (prot = cell->prot_head.next; prot != NULL;
-	     prot = prot->list.next)
-		idx += protein_bond_compounds(prot, &bond_buf[idx]);
+	struct singly_list *prot;
+	for (prot = cell->prot_head.next; prot != NULL; prot = prot->next)
+		idx += protein_bond_compounds((struct protein *)prot, &bond_buf[idx]);
 
 	bio_data_t *t;
 
@@ -77,10 +76,11 @@ void cell_run(struct cell *cell, struct singly_list *vessel_head)
 	/* TODO: まずは引数となる値の取得のみ実装する */
 	if ((cell->is_can_react == FALSE)
 	    && (cell->add_to_args_if_need != NULL)) {
-		struct compound *comp;
+		struct singly_list *comp;
 		for (comp = vessel_head->next; comp != NULL;
-		     comp = comp->list.next) {
-			cell->add_to_args_if_need(cell, comp, vessel_head);
+		     comp = comp->next) {
+			cell->add_to_args_if_need(
+				cell, (struct compound *)comp, vessel_head);
 			if (cell->is_can_react == TRUE)
 				break;
 		}
@@ -93,7 +93,7 @@ void cell_run(struct cell *cell, struct singly_list *vessel_head)
 		struct compound *product = react(cell);
 
 		/* 生成された化合物を管へ追加 */
-		slist_add_to_head((struct singly_list *)product,
-				  (struct singly_list *)vessel_head);
+		slist_prepend((struct singly_list *)product,
+			      (struct singly_list *)vessel_head);
 	}
 }

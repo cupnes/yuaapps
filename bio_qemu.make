@@ -9,7 +9,7 @@ ifdef SMP
 	QEMU_ADDITIONAL_ARGS += -smp ${SMP}
 endif
 
-$(WORK_DIR)/$(TARGET): $(addprefix $(WORK_DIR)/, $(FILES))
+$(WORK_DIR)/$(TARGET): $(WORK_DIR) $(addprefix $(WORK_DIR)/, $(FILES))
 	cd $(WORK_DIR) && ../tools/create_fs.sh $(FILES)
 
 $(WORK_DIR)/init:
