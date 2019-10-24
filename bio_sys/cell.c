@@ -32,6 +32,10 @@ static struct compound *react(struct cell *cell)
 	}
 	bio_data_t prod_val = (*func)(args[1], args[2], args[3], args[4]);
 
+	for (i = 0; i < MAX_CELL_ARGS; i++)
+		cell->args[i]->is_destroyed = TRUE;
+	cell->is_can_react = FALSE;
+
 	t = (bio_data_t *)product->elements;
 	*t = prod_val;
 	product->len = 8;
@@ -90,7 +94,9 @@ void cell_run(struct cell *cell, struct singly_list *vessel_head)
 	/* タンパク質の反応に必要な化合物が揃っているか？ */
 	if (cell->is_can_react == TRUE) {
 		/* 反応を起こす */
+		compound_dump_elements(cell->args[0]);
 		struct compound *product = react(cell);
+		compound_dump_elements(product);
 
 		/* 生成された化合物を管へ追加 */
 		slist_prepend((struct singly_list *)product,

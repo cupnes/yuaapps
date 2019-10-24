@@ -8,6 +8,7 @@
 int main(void)
 {
 	/* 各種初期化処理を実施 */
+	clear_screen();
 	compound_pool_init();
 	protein_pool_init();
 	cell_pool_init();

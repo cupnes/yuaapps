@@ -27,3 +27,4 @@ struct compound *compound_create_with_elements(
 	element_t *elem_arry, unsigned int elem_len);
 struct compound *compound_create_with_data(bio_data_t data);
 bool_t compound_is_data(struct compound *comp);
+void compound_dump_elements(struct compound *comp);

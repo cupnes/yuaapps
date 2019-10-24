@@ -1,3 +1,4 @@
+#include <compound.h>
 #include <cell.h>
 #include <organ.h>
 #include <lib.h>
@@ -51,4 +52,16 @@ void organ_run(struct organ *orgn)
 	/* TODO: DNAを実装できたら、組織の層を追加して
 	 *       組織の層から細胞へ細胞分裂を指示するようにする
 	 *       ∵ 細胞分裂のタイミングは組織で定義される */
+}
+
+void organ_dump_vessel(struct organ *orgn)
+{
+	struct singly_list *comp;
+	for (comp = orgn->vessel_head.next; comp != NULL; comp = comp->next) {
+		struct compound *c = (struct compound *)comp;
+		compound_dump_elements(c);
+		if (comp->next != NULL)
+			puts(", ");
+	}
+	puts("\r\n");
 }

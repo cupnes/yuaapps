@@ -60,3 +60,15 @@ bool_t compound_is_data(struct compound *comp)
 		return TRUE;
 	return FALSE;
 }
+
+void compound_dump_elements(struct compound *comp)
+{
+	putchar('[');
+	unsigned long long i;
+	for (i = 0; i < comp->len; i++) {
+		puth(comp->elements[i], 2);
+		if (i < (comp->len - 1))
+			putchar(' ');
+	}
+	putchar(']');
+}

@@ -24,3 +24,4 @@ void organ_pool_init(void);
 struct organ *organ_create(void);
 struct organ *organ_create_with_cell(struct cell *cell_list);
 void organ_run(struct organ *orgn);
+void organ_dump_vessel(struct organ *orgn);

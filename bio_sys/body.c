@@ -46,12 +46,16 @@ void body_run(struct body *body)
 		/* 各器官で1周期分の生体活動を実施 */
 		struct organ *orgn;
 		for (orgn = (struct organ *)body->orgn_head.next; orgn != NULL;
-		     orgn = (struct organ *)orgn->list.next)
+		     orgn = (struct organ *)orgn->list.next) {
 			organ_run(orgn);
+
+			/* デバッグ用に管の情報をダンプ */
+			/* organ_dump_vessel(orgn); */
+		}
 
 		/* 次の周期まで待つ */
 		/* sleep(BODY_CYCLE_US); */
-		unsigned long long _wait = BODY_CYCLE_US;
+		unsigned long long _wait = BODY_CYCLE_US * 1000;
 		while (_wait--);
 	}
 }
