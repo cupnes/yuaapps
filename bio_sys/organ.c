@@ -1,5 +1,5 @@
 #include <compound.h>
-#include <cell.h>
+#include <tissue.h>
 #include <organ.h>
 #include <lib.h>
 
@@ -23,7 +23,7 @@ struct organ *organ_create(void)
 			organ_pool[i].is_destroyed = FALSE;
 			spin_unlock(&is_organ_creation);
 			organ_pool[i].list.next = NULL;
-			organ_pool[i].cell_head.next = NULL;
+			organ_pool[i].tiss_head.next = NULL;
 			organ_pool[i].vessel_head.next = NULL;
 			return &organ_pool[i];
 		}
@@ -33,21 +33,21 @@ struct organ *organ_create(void)
 	return NULL;
 }
 
-struct organ *organ_create_with_cell(struct cell *cell_1st_entry)
+struct organ *organ_create_with_tissue(struct tissue *tiss_1st_entry)
 {
 	struct organ *orgn = organ_create();
 	if (orgn == NULL)
 		return NULL;
 
-	orgn->cell_head.next = &cell_1st_entry->list;
+	orgn->tiss_head.next = &tiss_1st_entry->list;
 	return orgn;
 }
 
 void organ_run(struct organ *orgn)
 {
-	struct singly_list *cell;
-	for (cell = orgn->cell_head.next; cell != NULL; cell = cell->next)
-		cell_run((struct cell *)cell, &orgn->vessel_head);
+	struct singly_list *tiss;
+	for (tiss = orgn->tiss_head.next; tiss != NULL; tiss = tiss->next)
+		tissue_run((struct tissue *)tiss, &orgn->vessel_head);
 
 	/* TODO: DNAを実装できたら、組織の層を追加して
 	 *       組織の層から細胞へ細胞分裂を指示するようにする

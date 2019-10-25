@@ -1,6 +1,7 @@
 #include <compound.h>
 #include <protein.h>
 #include <cell.h>
+#include <tissue.h>
 #include <organ.h>
 #include <body.h>
 #include <lives/incrementer.h>
@@ -12,6 +13,7 @@ int main(void)
 	compound_pool_init();
 	protein_pool_init();
 	cell_pool_init();
+	tissue_pool_init();
 	organ_pool_init();
 	body_pool_init();
 

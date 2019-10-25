@@ -1,7 +1,8 @@
 TARGET = init
 CFLAGS = -Wall -Wextra -nostdinc -nostdlib -fno-builtin -fno-common -Iinclude -fPIE
 LDFLAGS = -Map app.map -s -x -T apps.ld -pie
-OBJS = main.o lives/incrementer.o body.o organ.o cell.o protein.o compound.o lib.o
+OBJS = main.o lives/incrementer.o body.o organ.o tissue.o cell.o	\
+	protein.o compound.o lib.o
 DEPLOY_DIR ?= ../fs
 ifdef RUN_QEMU
 	CFLAGS += -DRUN_QEMU

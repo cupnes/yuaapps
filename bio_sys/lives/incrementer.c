@@ -2,6 +2,9 @@
 #include <compound.h>
 #include <protein.h>
 #include <cell.h>
+#include <tissue.h>
+#include <organ.h>
+#include <body.h>
 #include <lib.h>
 
 /* インクリメンタ細胞の機械語コード
@@ -79,14 +82,20 @@ struct body *incrementer_create_body(void)
 	cell->add_to_args_if_need = incrementer_add_to_args_if_need;
 
 	/* DNAを生成し細胞へ配置 */
-	/* TODO: T.B.D */
+	/* 現状の実装ではcellのprot_headのリストがDNAにも相当する */
 
 	/* 細胞にその他の設定を行う */
 	cell->list.next = NULL;
 	/* TODO: T.B.D */
 
-	/* 器官を生成し細胞を配置 */
-	struct organ *orgn = organ_create_with_cell(cell);
+	/* 組織を形成 */
+	struct tissue *tiss = tissue_create_with_cell(cell);
+	if (tiss == NULL)
+		die("incrementer_create_body: can't create tissue.");
+	tiss->list.next = NULL;
+
+	/* 器官を形成 */
+	struct organ *orgn = organ_create_with_tissue(tiss);
 	if (orgn == NULL)
 		die("incrementer_create_body: can't create organ.");
 	orgn->list.next = NULL;

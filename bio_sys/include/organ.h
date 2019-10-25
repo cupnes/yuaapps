@@ -1,7 +1,7 @@
 #pragma once
 
 #include <compound.h>
-#include <cell.h>
+#include <tissue.h>
 #include <lib.h>
 
 #define MAX_POOL_ORGANS	100
@@ -10,8 +10,8 @@ struct organ {
 	/* Head */
 	struct singly_list list;
 
-	/* Cells (Cell List) */
-	struct singly_list cell_head;
+	/* Organs (Organ List) */
+	struct singly_list tiss_head;
 
 	/* Vessel (Compound List) */
 	struct singly_list vessel_head;
@@ -22,6 +22,6 @@ struct organ {
 
 void organ_pool_init(void);
 struct organ *organ_create(void);
-struct organ *organ_create_with_cell(struct cell *cell_list);
+struct organ *organ_create_with_tissue(struct tissue *tiss_1st_entry);
 void organ_run(struct organ *orgn);
 void organ_dump_vessel(struct organ *orgn);

@@ -1,10 +1,11 @@
 #pragma once
 
+#include <element.h>
 #include <protein.h>
 #include <lib.h>
 
 #define MAX_POOL_CELLS	100
-#define MAX_DNA_LEN	64
+/* #define MAX_DNA_LEN	64 */
 #define MAX_CELL_ARGS	4
 #define DEFAULT_LIFE_DURATION	3600
 
@@ -25,6 +26,7 @@ struct cell {
 				    struct singly_list *vessel_head);
 
 	/* DNA */
+	/* 現状の実装ではcellのprot_headのリストがDNAにも相当する */
 
 	/* Attributes */
 	bool_t is_destroyed;
@@ -33,4 +35,3 @@ struct cell {
 void cell_pool_init(void);
 struct cell *cell_create(void);
 void cell_run(struct cell *cell, struct singly_list *vessel_head);
-void cell_update_status(struct cell *cell);
