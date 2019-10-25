@@ -11,6 +11,7 @@ struct tissue {
 
 	/* Cells */
 	struct singly_list cell_head;
+	bool_t (*check_dividable)(struct singly_list *cell_head);
 
 	/* Attributes */
 	bool_t is_destroyed;

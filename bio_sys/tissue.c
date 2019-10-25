@@ -22,6 +22,7 @@ struct tissue *tissue_create(void)
 			spin_unlock(&is_tissue_creation);
 			tissue_pool[i].list.next = NULL;
 			tissue_pool[i].cell_head.next = NULL;
+			tissue_pool[i].check_dividable = NULL;
 			return &tissue_pool[i];
 		}
 	}

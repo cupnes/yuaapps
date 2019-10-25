@@ -100,4 +100,11 @@ void cell_run(struct cell *cell, struct singly_list *vessel_head)
 		slist_prepend((struct singly_list *)product,
 			      (struct singly_list *)vessel_head);
 	}
+
+	
+}
+
+void cell_apoptosis(struct cell *cell, struct singly_list *vessel_head)
+{
+	/* TODO: compoundを全て解放しvessel_headへつなぐ */
 }
