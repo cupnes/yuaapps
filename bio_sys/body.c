@@ -50,7 +50,7 @@ void body_run(struct body *body)
 			organ_run(orgn);
 
 			/* デバッグ用に管の情報をダンプ */
-			/* organ_dump_vessel(orgn); */
+			organ_dump_vessel(orgn);
 		}
 
 		/* 次の周期まで待つ */
