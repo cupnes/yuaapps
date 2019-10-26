@@ -10,7 +10,7 @@ struct organ {
 	/* Head */
 	struct singly_list list;
 
-	/* Organs (Organ List) */
+	/* Tissues (Tissue List) */
 	struct singly_list tiss_head;
 
 	/* Vessel (Compound List) */

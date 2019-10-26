@@ -65,3 +65,16 @@ unsigned int protein_bond_compounds(struct protein *prot, unsigned char *buf)
 
 	return len;
 }
+
+void prot_decompose(struct protein *prot, struct singly_list *vessel_head)
+{
+	struct singly_list *comp, *next;
+	for (comp = prot->operand_head.next; comp != NULL; comp = next) {
+		next = comp->next;
+		slist_prepend(comp, vessel_head);
+	}
+	prot->operand_head.next = NULL;
+
+	slist_prepend(&prot->opcode->list, vessel_head);
+	prot->opcode = NULL;
+}

@@ -43,7 +43,15 @@ struct tissue *tissue_create_with_cell(struct cell *cell_1st_entry)
 
 void tissue_run(struct tissue *tiss, struct singly_list *vessel_head)
 {
-	struct singly_list *cell;
-	for (cell = tiss->cell_head.next; cell != NULL; cell = cell->next)
-		cell_run((struct cell *)cell, vessel_head);
+	struct singly_list *cell, *next;
+	for (cell = tiss->cell_head.next; cell != NULL; cell = next) {
+		next = cell->next;
+
+		struct cell *c = (struct cell *)cell;
+		cell_run(c, vessel_head);
+		if (c->life_duration == 0) {
+			cell_decompose(c, vessel_head);	/* Apotosis */
+			slist_remove(cell, &tiss->cell_head);
+		}
+	}
 }

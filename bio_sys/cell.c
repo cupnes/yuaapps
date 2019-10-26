@@ -101,10 +101,14 @@ void cell_run(struct cell *cell, struct singly_list *vessel_head)
 			      (struct singly_list *)vessel_head);
 	}
 
-	
+	cell->life_duration--;
 }
 
-void cell_apoptosis(struct cell *cell, struct singly_list *vessel_head)
+void cell_decompose(struct cell *cell, struct singly_list *vessel_head)
 {
-	/* TODO: compoundを全て解放しvessel_headへつなぐ */
+	struct singly_list *prot;
+	for (prot = cell->prot_head.next; prot != NULL; prot = prot->next)
+		prot_decompose((struct protein *)prot, vessel_head);
+	for (prot = cell->prot_store_head.next; prot != NULL; prot = prot->next)
+		prot_decompose((struct protein *)prot, vessel_head);
 }

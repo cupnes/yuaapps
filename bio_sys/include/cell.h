@@ -35,3 +35,4 @@ struct cell {
 void cell_pool_init(void);
 struct cell *cell_create(void);
 void cell_run(struct cell *cell, struct singly_list *vessel_head);
+void cell_decompose(struct cell *cell, struct singly_list *vessel_head);
