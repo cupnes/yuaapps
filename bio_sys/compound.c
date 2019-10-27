@@ -72,3 +72,10 @@ void compound_dump_elements(struct compound *comp)
 	}
 	putchar(']');
 }
+
+bool_t compound_are_differ(struct compound *a, struct compound *b)
+{
+	if (a->elements.data == b->elements.data)
+		return TRUE;
+	return FALSE;
+}

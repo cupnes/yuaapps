@@ -7,11 +7,15 @@
 #include <body.h>
 #include <lib.h>
 
+#define INCREMENTER_MAX_COMPOUNDS	5
+
 /* インクリメンタ細胞の機械語コード
 protein1: opcode=0x48 0x89, operand=0xf8	mov %rdi,%rax
 protein2: opcode=0x48 0xff, operand=0xc0	inc %rax
 protein3: opcode=0xc3     , operand=NULL	ret
  */
+
+struct codon codon_data[INCREMENTER_MAX_COMPOUNDS];
 
 void incrementer_add_to_args_if_need(struct cell *cell, struct compound *comp,
 				     struct singly_list *vessel_head)
@@ -38,37 +42,65 @@ struct body *incrementer_create_body(void)
 	struct compound *comp_opcode, *comp_operand;
 	struct protein *prot[3];
 
+	unsigned int i;
+	for (i = 0; i < INCREMENTER_MAX_COMPOUNDS; i++) {
+		if (i > 0)
+			codon_data[i - 1].list.next = &codon_data[i].list;
+		codon_data[i].is_stored = FALSE;
+	}
+	codon_data[i].list.next = NULL;
+
+	unsigned char codon_idx = 0;
+
+	/* opcode=0x48 0x89 */
 	elem_opcode[0] = 0x48; elem_opcode[1] = 0x89;
 	comp_opcode = compound_create_with_elements(elem_opcode, 2);
 	if (comp_opcode == NULL)
 		die("incrementer_create_body: can't create opcode0.");
+	codon_data[codon_idx++].comp_data = comp_opcode->elements.data;
+
+	/* operand=0xf8 */
 	elem_operand[0] = 0xf8;
 	comp_operand = compound_create_with_elements(elem_operand, 1);
 	if (comp_operand == NULL)
 		die("incrementer_create_body: can't create operand0.");
+	codon_data[codon_idx++].comp_data = comp_operand->elements.data;
+
+	/* protein1 */
 	prot[0] = protein_create_with_compounds(comp_opcode,
 						&comp_operand->list);
 	if (prot[0] == NULL)
 		die("incrementer_create_body: can't create prot0.");
 
+	/* opcode=0x48 0xff */
 	elem_opcode[0] = 0x48; elem_opcode[1] = 0xff;
 	comp_opcode = compound_create_with_elements(elem_opcode, 2);
 	if (comp_opcode == NULL)
 		die("incrementer_create_body: can't create opcode1.");
+	codon_data[codon_idx++].comp_data = comp_opcode->elements.data;
+
+	/* operand=0xc0 */
 	elem_operand[0] = 0xc0;
 	comp_operand = compound_create_with_elements(elem_operand, 1);
 	if (comp_operand == NULL)
 		die("incrementer_create_body: can't create operand1.");
+	codon_data[codon_idx++].comp_data = comp_operand->elements.data;
+
+	/* protein2 */
 	prot[1] = protein_create_with_compounds(comp_opcode,
 						&comp_operand->list);
 	if (prot[1] == NULL)
 		die("incrementer_create_body: can't create prot1.");
 	prot[0]->list.next = &prot[1]->list;
 
+	/* opcode=0xc3 */
 	elem_opcode[0] = 0xc3;
 	comp_opcode = compound_create_with_elements(elem_opcode, 1);
 	if (comp_opcode == NULL)
 		die("incrementer_create_body: can't create opcode2.");
+	codon_data[codon_idx++].comp_data = comp_opcode->elements.data;
+
+	/* protein3 */
 	prot[2] = protein_create_with_compounds(comp_opcode, NULL);
 	if (prot[2] == NULL)
 		die("incrementer_create_body: can't create prot2.");
@@ -76,17 +108,14 @@ struct body *incrementer_create_body(void)
 	prot[2]->list.next = NULL;
 
 	cell->prot_head.next = &prot[0]->list;
+	cell->codon_head.next = &codon_data[0].list;
 
 	/* 結合する化合物(引数)に関する設定 */
 	cell->num_args = 1;
 	cell->add_to_args_if_need = incrementer_add_to_args_if_need;
 
-	/* DNAを生成し細胞へ配置 */
-	/* 現状の実装ではcellのprot_headのリストがDNAにも相当する */
-
 	/* 細胞にその他の設定を行う */
 	cell->list.next = NULL;
-	/* TODO: T.B.D */
 
 	/* 組織を形成 */
 	struct tissue *tiss = tissue_create_with_cell(cell);

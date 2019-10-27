@@ -5,14 +5,17 @@
 #include <lib.h>
 
 #define MAX_POOL_COMPOUNDS	100
-#define MAX_COMPOUND_ELEMENTS	16
+#define MAX_COMPOUND_ELEMENTS	8
 
 struct compound {
 	/* Head */
 	struct singly_list list;
 
 	/* Elements */
-	element_t elements[MAX_COMPOUND_ELEMENTS];
+	union elements {
+		element_t bytes[MAX_COMPOUND_ELEMENTS];
+		bio_data_t data;
+	};
 	unsigned long long len;
 
 	/* Attributes */
@@ -28,3 +31,4 @@ struct compound *compound_create_with_elements(
 struct compound *compound_create_with_data(bio_data_t data);
 bool_t compound_is_data(struct compound *comp);
 void compound_dump_elements(struct compound *comp);
+bool_t compound_are_differ(struct compound *a, struct compound *b);

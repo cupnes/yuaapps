@@ -495,5 +495,6 @@ struct singly_list *slist_remove(
 		return NULL;
 
 	prev->next = t->next;
+	entry->next = NULL;
 	return t;
 }

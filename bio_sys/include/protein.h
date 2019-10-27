@@ -14,6 +14,7 @@ struct protein {
 
 	/* Attributes */
 	bool_t is_destroyed;
+	bool_t is_completed;
 };
 
 extern struct protein protein_pool[MAX_POOL_PROTEINS];

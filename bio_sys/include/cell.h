@@ -1,6 +1,7 @@
 #pragma once
 
 #include <element.h>
+#include <compound.h>
 #include <protein.h>
 #include <lib.h>
 
@@ -9,7 +10,16 @@
 #define MAX_CELL_ARGS	4
 #define DEFAULT_LIFE_DURATION	3600
 
-typedef unsigned char nucleotide_t;
+struct codon {
+	/* Head */
+	struct singly_list list;
+
+	/* Data */
+	bio_data_t comp_data;
+
+	/* Attributes */
+	bool_t is_stored;
+};
 
 struct cell {
 	/* Head */
@@ -19,6 +29,7 @@ struct cell {
 	/* Protein */
 	struct singly_list prot_head;
 	struct singly_list prot_store_head;
+	struct singly_list comp_store_head;
 	struct compound *args[MAX_CELL_ARGS];
 	unsigned char num_args;
 	bool_t is_can_react;
@@ -26,7 +37,8 @@ struct cell {
 				    struct singly_list *vessel_head);
 
 	/* DNA */
-	/* 現状の実装ではcellのprot_headのリストがDNAにも相当する */
+	struct singly_list codon_head;
+	bool_t is_store_saturated;    /* 化合物の蓄えが十分になった(分裂可能) */
 
 	/* Attributes */
 	bool_t is_destroyed;
@@ -36,3 +48,5 @@ void cell_pool_init(void);
 struct cell *cell_create(void);
 void cell_run(struct cell *cell, struct singly_list *vessel_head);
 void cell_decompose(struct cell *cell, struct singly_list *vessel_head);
+bool_t cell_is_needed_compound(struct cell *cell, struct compound *comp);
+void cell_update_prot_stores(struct cell *cell);
