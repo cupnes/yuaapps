@@ -64,7 +64,7 @@ void body_run(struct body *body)
 
 		/* 次の周期まで待つ */
 		/* sleep(BODY_CYCLE_US); */
-		unsigned long long _wait = BODY_CYCLE_US * 2000;
+		unsigned long long _wait = BODY_CYCLE_US * 1000;
 		while (_wait--);
 	}
 }

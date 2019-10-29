@@ -171,8 +171,8 @@ void cell_run(struct cell *cell, struct singly_list *vessel_head)
 		if (stored == TRUE)
 			break;
 	}
-	/* puts("- "); */
-	/* compound_dump(&cell->comp_store_head); */
+	puts("- ");
+	compound_dump(&cell->comp_store_head);
 	cell_update_prot_stores(cell);
 	if (cell->is_store_saturated == TRUE) {
 		puts("cell->is_store_saturated == TRUE\r\n");
