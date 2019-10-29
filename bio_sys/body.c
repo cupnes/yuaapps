@@ -42,10 +42,12 @@ struct body *body_create_with_organ(struct singly_list *orgn_1st_entry)
 
 void body_run(struct body *body)
 {
-	struct organ *orgn = (struct organ *)body->orgn_head.next;
-	organ_dump_vessel(orgn);
+	/* struct organ *orgn = (struct organ *)body->orgn_head.next; */
+	/* organ_dump_vessel(orgn); */
 
 	while (TRUE) {
+		struct organ *orgn;
+
 		/* clear_screen(); */
 
 		/* struct organ *orgn = (struct organ *)body->orgn_head.next; */

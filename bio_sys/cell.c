@@ -171,7 +171,12 @@ void cell_run(struct cell *cell, struct singly_list *vessel_head)
 		if (stored == TRUE)
 			break;
 	}
+	/* puts("- "); */
+	/* compound_dump(&cell->comp_store_head); */
 	cell_update_prot_stores(cell);
+	if (cell->is_store_saturated == TRUE) {
+		puts("cell->is_store_saturated == TRUE\r\n");
+	}
 
 	/* dump_vessel("D", vessel_head); */
 
@@ -218,9 +223,8 @@ void cell_update_prot_stores(struct cell *cell)
 		struct protein *p = (struct protein *)prot;
 
 		/* opcodeをcomp_store_headのリストから取得 */
-		struct compound *comp_opcode =
-			(struct compound *)slist_find_in(
-				&p->opcode->list, &cell->comp_store_head);
+		struct compound *comp_opcode = compound_find_in(
+			p->opcode, &cell->comp_store_head);
 		if (comp_opcode == NULL)
 			die("cell_update_prot_stores: opcode not found.");
 		_t = slist_remove(&comp_opcode->list, &cell->comp_store_head);
@@ -236,9 +240,9 @@ void cell_update_prot_stores(struct cell *cell)
 		for (comp = p->operand_head.next; comp != NULL; comp = next) {
 			next = comp->next;
 
-			struct compound *comp_operand =
-				(struct compound *)slist_find_in(
-					comp, &cell->comp_store_head);
+			struct compound *comp_operand = compound_find_in(
+				(struct compound *)comp,
+				&cell->comp_store_head);
 			if (comp_operand == NULL)
 				die("cell_update_prot_sto: operand not found.");
 			_t = slist_remove(&comp_operand->list,

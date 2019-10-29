@@ -73,9 +73,32 @@ void compound_dump_elements(struct compound *comp)
 	putchar(']');
 }
 
+void compound_dump(struct singly_list *list_head)
+{
+	struct singly_list *entry;
+	for (entry = list_head->next; entry != NULL; entry = entry->next) {
+		compound_dump_elements((struct compound *)entry);
+		if (entry->next != NULL)
+			putchar(',');
+	}
+	puts("\r\n");
+}
+
 bool_t compound_are_differ(struct compound *a, struct compound *b)
 {
 	if (a->elements.data == b->elements.data)
 		return TRUE;
 	return FALSE;
+}
+
+struct compound *compound_find_in(
+	struct compound *comp, struct singly_list *list_head)
+{
+	struct singly_list *entry;
+	for (entry = list_head->next; entry != NULL; entry = entry->next) {
+		struct compound *t = (struct compound *)entry;
+		if (compound_are_differ(t, comp) == FALSE)
+			return t;
+	}
+	return NULL;
 }

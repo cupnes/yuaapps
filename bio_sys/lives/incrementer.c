@@ -141,16 +141,37 @@ struct body *incrementer_create_body(void)
 	comp_opcode = compound_create_with_elements(elem_opcode, 2);
 	if (comp_opcode == NULL)
 		die("incrementer_create_body: can't create opcode.");
+	comp_data1->list.next = &comp_opcode->list;
 
 	/* operand=0xf8 */
 	elem_operand[0] = 0xf8;
 	comp_operand = compound_create_with_elements(elem_operand, 1);
 	if (comp_operand == NULL)
 		die("incrementer_create_body: can't create operand.");
-
-	comp_data1->list.next = &comp_opcode->list;
 	comp_opcode->list.next = &comp_operand->list;
-	comp_operand->list.next = NULL;
+
+	/* opcode=0x48 0xff */
+	elem_opcode[0] = 0x48; elem_opcode[1] = 0xff;
+	comp_opcode = compound_create_with_elements(elem_opcode, 2);
+	if (comp_opcode == NULL)
+		die("incrementer_create_body: can't create opcode.");
+	comp_operand->list.next = &comp_opcode->list;
+
+	/* operand=0xc0 */
+	elem_operand[0] = 0xc0;
+	comp_operand = compound_create_with_elements(elem_operand, 1);
+	if (comp_operand == NULL)
+		die("incrementer_create_body: can't create operand.");
+	comp_opcode->list.next = &comp_operand->list;
+
+	/* opcode=0xc3 */
+	elem_opcode[0] = 0xc3;
+	comp_opcode = compound_create_with_elements(elem_opcode, 1);
+	if (comp_opcode == NULL)
+		die("incrementer_create_body: can't create opcode2.");
+	comp_operand->list.next = &comp_opcode->list;
+
+	comp_opcode->list.next = NULL;
 	orgn->vessel_head.next = &comp_data1->list;
 
 	/* 生体へ器官を配置 */
