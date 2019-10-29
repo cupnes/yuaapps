@@ -1,3 +1,4 @@
+#include <bio_type.h>
 #include <compound.h>
 #include <protein.h>
 #include <cell.h>
@@ -60,20 +61,24 @@ static void init_cell(struct cell *cell)
 	cell->is_store_saturated = FALSE;
 }
 
+/* 取り込めるものがあったら一つだけ取り込む
+ * (1周期で取り込める化合物は1つ)		*/
 static void store_compound_if_need(
 	struct cell *cell, struct compound *comp,
 	struct singly_list *vessel_head)
 {
 	struct singly_list *codn;
 	for (codn = cell->codon_head.next; codn != NULL; codn = codn->next) {
-		if (codn->is_stored == FALSE) {
-			struct codon *c = (struct codon *)codn;
+		struct codon *c = (struct codon *)codn;
+		if (c->is_stored == FALSE) {
 			if (comp->elements.data == c->comp_data) {
 				struct singly_list *entry =
-					slist_remove(comp, vessel_head);
+					slist_remove(&comp->list, vessel_head);
 				if (entry == NULL)
 					die("can't remove a compound.");
 				slist_prepend(entry, &cell->comp_store_head);
+
+				return;
 			}
 		}
 	}
@@ -149,6 +154,13 @@ void cell_decompose(struct cell *cell, struct singly_list *vessel_head)
 		prot_decompose((struct protein *)prot, vessel_head);
 	for (prot = cell->prot_store_head.next; prot != NULL; prot = prot->next)
 		prot_decompose((struct protein *)prot, vessel_head);
+
+	struct singly_list *comp, *next;
+	for (comp = cell->comp_store_head.next; comp != NULL; comp = next) {
+		next = comp->next;
+		slist_prepend(comp, vessel_head);
+	}
+	cell->comp_store_head.next = NULL;
 }
 
 void cell_update_prot_stores(struct cell *cell)
@@ -164,6 +176,66 @@ void cell_update_prot_stores(struct cell *cell)
 	}
 
 	/* TODO: comp_store_head で prot_store_head を作る */
+	struct protein *prot_1st_entry = NULL;
+	struct protein *prot_prev = NULL;
+	struct protein *prot_product;
+	struct singly_list *prot;
+	for (prot = cell->prot_head.next; prot != NULL; prot = prot->next) {
+		struct singly_list *_t;
 
+		struct protein *p = (struct protein *)prot;
+
+		/* opcodeをcomp_store_headのリストから取得 */
+		struct compound *comp_opcode =
+			(struct compound *)slist_find_in(
+				&p->opcode->list, &cell->comp_store_head);
+		if (comp_opcode == NULL)
+			die("cell_update_prot_stores: opcode not found.");
+		_t = slist_remove(&comp_opcode->list, &cell->comp_store_head);
+		if (_t == NULL)
+			die("cell_update_prot_stores: opcode can't remove.");
+		_t->next = NULL;
+
+		/* operandのリストをcomp_store_headのリストから作成 */
+		struct singly_list *comp;
+		struct compound *comp_operand_1st_entry = NULL;
+		struct singly_list *_t_prev = NULL;
+		struct singly_list *next;
+		for (comp = p->operand_head.next; comp != NULL; comp = next) {
+			next = comp->next;
+
+			struct compound *comp_operand =
+				(struct compound *)slist_find_in(
+					comp, &cell->comp_store_head);
+			if (comp_operand == NULL)
+				die("cell_update_prot_sto: operand not found.");
+			_t = slist_remove(&comp_operand->list,
+					  &cell->comp_store_head);
+			if (_t == NULL)
+				die("cell_update_prot_: operand can't remove.");
+
+			if (_t_prev != NULL)
+				_t_prev->next = _t;
+			else
+				comp_operand_1st_entry = comp_operand;
+
+			_t_prev = _t;
+		}
+		_t->next = NULL;
+
+		/* opcodeとoperandのリストでproteinを生成 */
+		prot_product = protein_create_with_compounds(
+			comp_opcode, &comp_operand_1st_entry->list);
+
+		if (prot_prev != NULL)
+			prot_prev->list.next = &prot_product->list;
+		else
+			prot_1st_entry = prot_product;
+
+		prot_prev = prot_product;
+	}
+	prot_product->list.next = NULL;
+
+	cell->prot_store_head.next = &prot_1st_entry->list;
 	cell->is_store_saturated = TRUE;
 }

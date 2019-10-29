@@ -498,3 +498,14 @@ struct singly_list *slist_remove(
 	entry->next = NULL;
 	return t;
 }
+
+struct singly_list *slist_find_in(
+	struct singly_list *target, struct singly_list *list)
+{
+	struct singly_list *entry;
+	for (entry = list->next; entry != NULL; entry = entry->next) {
+		if (entry == target)
+			return entry;
+	}
+	return NULL;
+}

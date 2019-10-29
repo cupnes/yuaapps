@@ -1,7 +1,7 @@
 #pragma once
 
+#include <bio_type.h>
 #include <element.h>
-#include <body.h>
 #include <lib.h>
 
 #define MAX_POOL_COMPOUNDS	100
@@ -12,10 +12,10 @@ struct compound {
 	struct singly_list list;
 
 	/* Elements */
-	union elements {
+	union {
 		element_t bytes[MAX_COMPOUND_ELEMENTS];
 		bio_data_t data;
-	};
+	} elements;
 	unsigned long long len;
 
 	/* Attributes */

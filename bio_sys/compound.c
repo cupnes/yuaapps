@@ -1,3 +1,4 @@
+#include <bio_type.h>
 #include <compound.h>
 #include <lib.h>
 
@@ -37,7 +38,7 @@ struct compound *compound_create_with_elements(
 	if (comp == NULL)
 		return NULL;
 
-	memcpy(comp->elements, elem_arry, elem_len);
+	memcpy(comp->elements.bytes, elem_arry, elem_len);
 	comp->len = elem_len;
 	return comp;
 }
@@ -48,8 +49,7 @@ struct compound *compound_create_with_data(bio_data_t data)
 	if (comp == NULL)
 		return NULL;
 
-	bio_data_t *p = (bio_data_t *)comp->elements;
-	*p = data;
+	comp->elements.data = data;
 	comp->len = sizeof(bio_data_t);
 	return comp;
 }
@@ -66,7 +66,7 @@ void compound_dump_elements(struct compound *comp)
 	putchar('[');
 	unsigned long long i;
 	for (i = 0; i < comp->len; i++) {
-		puth(comp->elements[i], 2);
+		puth(comp->elements.bytes[i], 2);
 		if (i < (comp->len - 1))
 			putchar(' ');
 	}

@@ -1,12 +1,12 @@
 #pragma once
 
+#include <bio_type.h>
 #include <element.h>
 #include <compound.h>
 #include <protein.h>
 #include <lib.h>
 
 #define MAX_POOL_CELLS	100
-/* #define MAX_DNA_LEN	64 */
 #define MAX_CELL_ARGS	4
 #define DEFAULT_LIFE_DURATION	3600
 

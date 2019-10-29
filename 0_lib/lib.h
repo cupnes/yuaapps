@@ -372,5 +372,7 @@ struct singly_list {
 void slist_prepend(struct singly_list *entry, struct singly_list *head);
 struct singly_list *slist_remove(
 	struct singly_list *entry, struct singly_list *head);
+struct singly_list *slist_find_in(
+	struct singly_list *target, struct singly_list *list);
 
 #endif

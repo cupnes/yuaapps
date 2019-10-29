@@ -1,3 +1,4 @@
+#include <bio_type.h>
 #include <element.h>
 #include <compound.h>
 #include <protein.h>
@@ -129,12 +130,28 @@ struct body *incrementer_create_body(void)
 		die("incrementer_create_body: can't create organ.");
 	orgn->list.next = NULL;
 
-	/* 初期値として器官の管に数値 1 のデータ化合物を配置 */
-	struct compound *comp_init_val = compound_create_with_data(1);
-	if (comp_init_val == NULL)
+	/* 器官の管に初期値となる化合物を配置 */
+	/* データ1 */
+	struct compound *comp_data1 = compound_create_with_data(1);
+	if (comp_data1 == NULL)
 		die("incrementer_create_body: can't create compound.");
-	comp_init_val->list.next = NULL;
-	orgn->vessel_head.next = &comp_init_val->list;
+
+	/* opcode=0x48 0x89 */
+	elem_opcode[0] = 0x48; elem_opcode[1] = 0x89;
+	comp_opcode = compound_create_with_elements(elem_opcode, 2);
+	if (comp_opcode == NULL)
+		die("incrementer_create_body: can't create opcode.");
+
+	/* operand=0xf8 */
+	elem_operand[0] = 0xf8;
+	comp_operand = compound_create_with_elements(elem_operand, 1);
+	if (comp_operand == NULL)
+		die("incrementer_create_body: can't create operand.");
+
+	comp_data1->list.next = &comp_opcode->list;
+	comp_opcode->list.next = &comp_operand->list;
+	comp_operand->list.next = NULL;
+	orgn->vessel_head.next = &comp_data1->list;
 
 	/* 生体へ器官を配置 */
 	struct body *body = body_create_with_organ(&orgn->list);

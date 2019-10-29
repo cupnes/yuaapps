@@ -51,14 +51,14 @@ unsigned int protein_bond_compounds(struct protein *prot, unsigned char *buf)
 {
 	unsigned int len = 0;
 
-	memcpy(buf, prot->opcode->elements, prot->opcode->len);
+	memcpy(buf, prot->opcode->elements.bytes, prot->opcode->len);
 	len = prot->opcode->len;
 	buf += len;
 
 	struct singly_list *comp;
 	for (comp = prot->operand_head.next; comp != NULL; comp = comp->next) {
 		struct compound *c = (struct compound *)comp;
-		memcpy(buf, c->elements, c->len);
+		memcpy(buf, c->elements.bytes, c->len);
 		len += c->len;
 		buf += c->len;
 	}
