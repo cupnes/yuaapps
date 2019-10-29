@@ -42,9 +42,16 @@ struct body *body_create_with_organ(struct singly_list *orgn_1st_entry)
 
 void body_run(struct body *body)
 {
+	struct organ *orgn = (struct organ *)body->orgn_head.next;
+	organ_dump_vessel(orgn);
+
 	while (TRUE) {
+		/* clear_screen(); */
+
+		/* struct organ *orgn = (struct organ *)body->orgn_head.next; */
+		/* organ_dump_vessel(orgn); */
+
 		/* 各器官で1周期分の生体活動を実施 */
-		struct organ *orgn;
 		for (orgn = (struct organ *)body->orgn_head.next; orgn != NULL;
 		     orgn = (struct organ *)orgn->list.next) {
 			organ_run(orgn);
@@ -55,7 +62,7 @@ void body_run(struct body *body)
 
 		/* 次の周期まで待つ */
 		/* sleep(BODY_CYCLE_US); */
-		unsigned long long _wait = BODY_CYCLE_US * 1000;
+		unsigned long long _wait = BODY_CYCLE_US * 2000;
 		while (_wait--);
 	}
 }

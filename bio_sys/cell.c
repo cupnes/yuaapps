@@ -63,7 +63,7 @@ static void init_cell(struct cell *cell)
 
 /* 取り込めるものがあったら一つだけ取り込む
  * (1周期で取り込める化合物は1つ)		*/
-static void store_compound_if_need(
+static bool_t store_compound_if_need(
 	struct cell *cell, struct compound *comp,
 	struct singly_list *vessel_head)
 {
@@ -78,10 +78,14 @@ static void store_compound_if_need(
 					die("can't remove a compound.");
 				slist_prepend(entry, &cell->comp_store_head);
 
-				return;
+				c->is_stored = TRUE;
+
+				return TRUE;
 			}
 		}
 	}
+
+	return FALSE;
 }
 
 void cell_pool_init(void)
@@ -109,9 +113,25 @@ struct cell *cell_create(void)
 	return NULL;
 }
 
+/* static void dump_vessel(char *pref, struct singly_list *vessel_head) */
+/* { */
+/* 	puts(pref); */
+/* 	putchar(' '); */
+/* 	struct singly_list *comp; */
+/* 	for (comp = vessel_head->next; comp != NULL; comp = comp->next) { */
+/* 		struct compound *c = (struct compound *)comp; */
+/* 		compound_dump_elements(c); */
+/* 		if (comp->next != NULL) */
+/* 			puts(", "); */
+/* 	} */
+/* 	puts("\r\n"); */
+/* } */
+
 void cell_run(struct cell *cell, struct singly_list *vessel_head)
 {
 	struct singly_list *comp;
+
+	/* dump_vessel("A", vessel_head); */
 
 	/* 器官の管(vessel)に必要とする化合物があれば取得 */
 	/* TODO: まずは引数となる値の取得のみ実装する */
@@ -126,6 +146,8 @@ void cell_run(struct cell *cell, struct singly_list *vessel_head)
 		}
 	}
 
+	/* dump_vessel("B", vessel_head); */
+
 	/* タンパク質の反応に必要な化合物が揃っていれば反応を起こす */
 	if (cell->is_can_react == TRUE) {
 		/* 反応を起こす */
@@ -136,12 +158,22 @@ void cell_run(struct cell *cell, struct singly_list *vessel_head)
 			      (struct singly_list *)vessel_head);
 	}
 
-	/* 成長する(自身を構成する化合物が管にあれば取り込む) */
-	for (comp = vessel_head->next; comp != NULL; comp = comp->next) {
-		store_compound_if_need(
+	/* dump_vessel("C", vessel_head); */
+
+	/* 成長する(自身を構成する化合物が管にあれば取り込む)
+	 * (1周期につき1つ)					*/
+	struct singly_list *next;
+	for (comp = vessel_head->next; comp != NULL; comp = next) {
+		next = comp->next;
+
+		bool_t stored = store_compound_if_need(
 			cell, (struct compound *)comp, vessel_head);
+		if (stored == TRUE)
+			break;
 	}
 	cell_update_prot_stores(cell);
+
+	/* dump_vessel("D", vessel_head); */
 
 	/* 寿命を減らす */
 	cell->life_duration--;
@@ -239,3 +271,8 @@ void cell_update_prot_stores(struct cell *cell)
 	cell->prot_store_head.next = &prot_1st_entry->list;
 	cell->is_store_saturated = TRUE;
 }
+
+/* void cell_dump_codon(struct cell *cell) */
+/* { */
+
+/* } */
