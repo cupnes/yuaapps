@@ -78,3 +78,33 @@ void prot_decompose(struct protein *prot, struct singly_list *vessel_head)
 	slist_prepend(&prot->opcode->list, vessel_head);
 	prot->opcode = NULL;
 }
+
+void protein_dump(struct protein *prot)
+{
+	putchar('[');
+
+	compound_dump_elements(prot->opcode);
+
+	putchar(':');
+
+	struct singly_list *entry;
+	for (entry = prot->operand_head.next; entry != NULL;
+	     entry = entry->next) {
+		compound_dump_elements((struct compound *)entry);
+		if (entry->next != NULL)
+			putchar(',');
+	}
+
+	putchar(']');
+}
+
+void protein_dump_list(struct singly_list *prot_head)
+{
+	struct singly_list *entry;
+	for (entry = prot_head->next; entry != NULL; entry = entry->next) {
+		protein_dump((struct protein *)entry);
+		if (entry->next != NULL)
+			putchar(',');
+	}
+	puts("\r\n");
+}

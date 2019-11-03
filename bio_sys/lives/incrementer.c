@@ -179,5 +179,7 @@ struct body *incrementer_create_body(void)
 	if (body == NULL)
 		die("incrementer_create_body: can't create body.");
 
+	/* protein_dump_list(&cell->prot_head); */
+
 	return body;
 }

@@ -5,9 +5,12 @@
 #include <lib.h>
 
 #define BOND_BUF_SIZE	100
+#define MAX_POOL_CODONS	100
 
 struct cell cell_pool[MAX_POOL_CELLS];
 unsigned int is_cell_creation;
+struct codon codon_pool[MAX_POOL_CODONS];
+unsigned int is_codon_creation;
 unsigned char bond_buf[BOND_BUF_SIZE];
 
 static struct compound *react(struct cell *cell)
@@ -44,6 +47,7 @@ static void init_cell(struct cell *cell)
 	/* Head */
 	cell->list.next = NULL;
 	cell->life_duration = DEFAULT_LIFE_DURATION;
+	/* cell->life_duration_def = DEFAULT_LIFE_DURATION; */
 
 	/* Protein */
 	cell->prot_head.next = NULL;
@@ -88,11 +92,64 @@ static bool_t store_compound_if_need(
 	return FALSE;
 }
 
+static struct codon *codon_create(void)
+{
+	spin_lock(&is_codon_creation);
+
+	unsigned int i;
+	for (i = 0; i < MAX_POOL_CODONS; i++) {
+		if (codon_pool[i].is_destroyed == TRUE) {
+			codon_pool[i].is_destroyed = FALSE;
+			spin_unlock(&is_codon_creation);
+
+			codon_pool[i].list.next = NULL;
+			codon_pool[i].comp_data = 0;
+			codon_pool[i].is_stored = FALSE;
+
+			return &codon_pool[i];
+		}
+	}
+
+	spin_unlock(&is_codon_creation);
+	return NULL;
+}
+
+static struct singly_list *copy_codon_list(struct singly_list *codon_head)
+{
+	struct singly_list *new_entry_1st = NULL;
+	struct codon *new_codon = NULL;
+	struct singly_list *new_entry_prev = NULL;
+
+	struct singly_list *orig_entry;
+	struct codon *orig_codon;
+
+	for (orig_entry = codon_head->next; orig_entry != NULL;
+	     orig_entry = orig_entry->next) {
+		new_codon = codon_create();
+		if (new_codon == NULL)
+			die("copy_codon_list: can't create codon.");
+
+		orig_codon = (struct codon *)orig_entry;
+		new_codon->comp_data = orig_codon->comp_data;
+
+		if (new_entry_1st == NULL)
+			new_entry_1st = &new_codon->list;
+		else
+			new_entry_prev->next = &new_codon->list;
+
+		new_entry_prev = &new_codon->list;
+	}
+
+	return new_entry_1st;
+}
+
 void cell_pool_init(void)
 {
 	unsigned int i;
 	for (i = 0; i < MAX_POOL_CELLS; i++)
 		cell_pool[i].is_destroyed = TRUE;
+	for (i = 0; i < MAX_POOL_CODONS; i++)
+		codon_pool[i].is_destroyed = TRUE;
 }
 
 struct cell *cell_create(void)
@@ -171,12 +228,12 @@ void cell_run(struct cell *cell, struct singly_list *vessel_head)
 		if (stored == TRUE)
 			break;
 	}
-	puts("- ");
-	compound_dump(&cell->comp_store_head);
+	/* puts("- "); */
+	/* compound_dump(&cell->comp_store_head); */
 	cell_update_prot_stores(cell);
-	if (cell->is_store_saturated == TRUE) {
-		puts("cell->is_store_saturated == TRUE\r\n");
-	}
+	/* if (cell->is_store_saturated == TRUE) { */
+	/* 	puts("cell->is_store_saturated == TRUE\r\n"); */
+	/* } */
 
 	/* dump_vessel("D", vessel_head); */
 
@@ -202,7 +259,8 @@ void cell_decompose(struct cell *cell, struct singly_list *vessel_head)
 
 void cell_update_prot_stores(struct cell *cell)
 {
-	if (cell->is_store_saturated == TRUE)
+	if ((cell->is_store_saturated == TRUE)
+	    || (cell->comp_store_head.next == NULL))
 		return;
 
 	struct singly_list *codn;
@@ -212,7 +270,7 @@ void cell_update_prot_stores(struct cell *cell)
 			return;
 	}
 
-	/* TODO: comp_store_head で prot_store_head を作る */
+	/* comp_store_head で prot_store_head を作る */
 	struct protein *prot_1st_entry = NULL;
 	struct protein *prot_prev = NULL;
 	struct protein *prot_product;
@@ -221,6 +279,9 @@ void cell_update_prot_stores(struct cell *cell)
 		struct singly_list *_t;
 
 		struct protein *p = (struct protein *)prot;
+
+		/* protein_dump(p); */
+		/* putchar('-'); */
 
 		/* opcodeをcomp_store_headのリストから取得 */
 		struct compound *comp_opcode = compound_find_in(
@@ -262,6 +323,8 @@ void cell_update_prot_stores(struct cell *cell)
 		/* opcodeとoperandのリストでproteinを生成 */
 		prot_product = protein_create_with_compounds(
 			comp_opcode, &comp_operand_1st_entry->list);
+		/* protein_dump(prot_product); */
+		/* putchar('-'); */
 
 		if (prot_prev != NULL)
 			prot_prev->list.next = &prot_product->list;
@@ -269,6 +332,10 @@ void cell_update_prot_stores(struct cell *cell)
 			prot_1st_entry = prot_product;
 
 		prot_prev = prot_product;
+
+		/* struct singly_list dump_list_head; */
+		/* dump_list_head.next = &prot_1st_entry->list; */
+		/* protein_dump_list(&dump_list_head); */
 	}
 	prot_product->list.next = NULL;
 
@@ -276,7 +343,34 @@ void cell_update_prot_stores(struct cell *cell)
 	cell->is_store_saturated = TRUE;
 }
 
-/* void cell_dump_codon(struct cell *cell) */
-/* { */
+struct cell *cell_division(struct cell *cell)
+{
+	if ((cell == NULL) || (cell->is_store_saturated != TRUE))
+		return NULL;
 
-/* } */
+	struct cell *cell_new = cell_create();
+	if (cell_new == NULL)
+		return NULL;
+
+	/* cell_new->life_duration_def = cell->life_duration_def; */
+
+	cell_new->prot_head.next = cell->prot_store_head.next;
+	cell->prot_store_head.next = NULL;
+	struct singly_list *codn;
+	for (codn = cell->codon_head.next; codn != NULL; codn = codn->next) {
+		struct codon *c = (struct codon *)codn;
+		c->is_stored = FALSE;
+	}
+	cell->is_store_saturated = FALSE;
+
+	cell_new->num_args = cell->num_args;
+	cell_new->add_to_args_if_need = cell->add_to_args_if_need;
+
+	cell_new->codon_head.next = copy_codon_list(&cell->codon_head);
+	if (cell_new->codon_head.next == NULL)
+		die("cell_division: codon copy failure.");
+
+	/* protein_dump_list(&cell_new->prot_head); */
+
+	return cell_new;
+}

@@ -86,7 +86,7 @@ void compound_dump(struct singly_list *list_head)
 
 bool_t compound_are_differ(struct compound *a, struct compound *b)
 {
-	if (a->elements.data == b->elements.data)
+	if (a->elements.data != b->elements.data)
 		return TRUE;
 	return FALSE;
 }

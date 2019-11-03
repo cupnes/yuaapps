@@ -25,3 +25,5 @@ struct protein *protein_create_with_compounds(
 	struct compound *opcode, struct singly_list *operand_1st_entry);
 unsigned int protein_bond_compounds(struct protein *prot, unsigned char *buf);
 void prot_decompose(struct protein *prot, struct singly_list *vessel_head);
+void protein_dump(struct protein *prot);
+void protein_dump_list(struct singly_list *prot_head);
