@@ -43,13 +43,23 @@ struct body *body_create_with_organ(struct singly_list *orgn_1st_entry)
 
 void body_run(struct body *body)
 {
-	/* struct organ *orgn = (struct organ *)body->orgn_head.next; */
-	/* organ_dump_vessel(orgn); */
+	unsigned int cycle_num = 0;
+
+	clear_screen();
+	puts("\r\n    ");
+	putd(cycle_num++, 2);
+	puts("th cycle\r\n\r\n");
+	struct organ *orgn = (struct organ *)body->orgn_head.next;
+	organ_dump_vessel(orgn);
+
+	unsigned long long _wait = BODY_CYCLE_US * 300;
+	while (_wait--);
 
 	while (TRUE) {
-		struct organ *orgn;
-
-		/* clear_screen(); */
+		clear_screen();
+		puts("\r\n    ");
+		putd(cycle_num++, 2);
+		puts("th cycle\r\n\r\n");
 
 		/* struct organ *orgn = (struct organ *)body->orgn_head.next; */
 		/* organ_dump_vessel(orgn); */
