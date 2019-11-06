@@ -22,6 +22,7 @@ struct body *body_create(void)
 			body_pool[i].is_destroyed = FALSE;
 			spin_unlock(&is_body_creation);
 			body_pool[i].orgn_head.next = NULL;
+			body_pool[i].periodic_func_hook = NULL;
 			return &body_pool[i];
 		}
 	}
@@ -61,6 +62,9 @@ void body_run(struct body *body)
 			/* デバッグ用に管の情報をダンプ */
 			organ_dump_vessel(orgn);
 		}
+
+		if (body->periodic_func_hook != NULL)
+			body->periodic_func_hook(body);
 
 		/* 次の周期まで待つ */
 		/* sleep(BODY_CYCLE_US); */

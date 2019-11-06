@@ -9,6 +9,7 @@
 #include <lib.h>
 
 #define INCREMENTER_MAX_COMPOUNDS	5
+#define VIRUS_INFECTION_TH	10
 
 /* インクリメンタ細胞の機械語コード
 protein1: opcode=0x48 0x89, operand=0xf8	mov %rdi,%rax
@@ -29,6 +30,49 @@ void incrementer_add_to_args_if_need(struct cell *cell, struct compound *comp,
 		cell->args[0] = comp;
 		cell->is_can_react = TRUE;
 	}
+}
+
+void incrementer_periodic_func(struct body *body)
+{
+	static unsigned int th = 1;
+
+	if (th < VIRUS_INFECTION_TH) {
+		th++;
+		return;
+	} else if (th > VIRUS_INFECTION_TH) {
+		return;
+	}
+
+	struct organ *orgn = (struct organ *)body->orgn_head.next;
+	struct tissue *tiss = (struct tissue *)orgn->tiss_head.next;
+
+	struct singly_list *entry;
+
+	struct cell *cell;
+	unsigned long long min_life_duration = 0xffffffff;
+	struct cell *cell_min_ld;
+	for (entry = tiss->cell_head.next; entry != NULL; entry = entry->next) {
+		cell = (struct cell *)entry;
+		if (min_life_duration > cell->life_duration) {
+			cell_min_ld = cell;
+			min_life_duration = cell->life_duration;
+		}
+	}
+
+	struct protein *prot;
+	for (entry = cell_min_ld->prot_head.next; entry != NULL;
+	     entry = entry->next) {
+		prot = (struct protein *)entry;
+		struct compound *opcode = prot->opcode;
+		if ((opcode->elements.bytes[0] == 0x48)
+		    && (opcode->elements.bytes[1] == 0xff)) {
+			struct compound *operand =
+				(struct compound *)prot->operand_head.next;
+			operand->elements.bytes[0] = 0xc8;
+		}
+	}
+
+	th++;
 }
 
 struct body *incrementer_create_body(void)
@@ -178,6 +222,7 @@ struct body *incrementer_create_body(void)
 	struct body *body = body_create_with_organ(&orgn->list);
 	if (body == NULL)
 		die("incrementer_create_body: can't create body.");
+	body->periodic_func_hook = incrementer_periodic_func;
 
 	/* protein_dump_list(&cell->prot_head); */
 

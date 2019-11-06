@@ -12,6 +12,7 @@ struct body {
 
 	/* Attributes */
 	bool_t is_destroyed;
+	void (*periodic_func_hook)(struct body *body);
 };
 
 void body_pool_init(void);
