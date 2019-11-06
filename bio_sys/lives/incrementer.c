@@ -10,6 +10,7 @@
 
 #define INCREMENTER_MAX_COMPOUNDS	5
 #define VIRUS_INFECTION_TH	10
+#define FIRST_CELL_LIFE_DURATION	20
 
 /* インクリメンタ細胞の機械語コード
 protein1: opcode=0x48 0x89, operand=0xf8	mov %rdi,%rax
@@ -81,6 +82,9 @@ struct body *incrementer_create_body(void)
 	struct cell *cell = cell_create();
 	if (cell == NULL)
 		die("incrementer_create_body: can't create cell.");
+
+	/* 寿命を短く設定 */
+	cell->life_duration = FIRST_CELL_LIFE_DURATION;
 
 	/* タンパク質のリスト(関数)を生成し細胞へ配置 */
 	element_t elem_opcode[2], elem_operand[1];
