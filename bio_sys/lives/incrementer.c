@@ -9,8 +9,9 @@
 #include <lib.h>
 
 #define INCREMENTER_MAX_COMPOUNDS	5
-#define VIRUS_INFECTION_TH	10
-#define FIRST_CELL_LIFE_DURATION	20
+#define PUT_INCR_COMP_TH	10
+#define VIRUS_INFECTION_TH	30
+#define FIRST_CELL_LIFE_DURATION	40
 
 /* インクリメンタ細胞の機械語コード
 protein1: opcode=0x48 0x89, operand=0xf8	mov %rdi,%rax
@@ -20,30 +21,60 @@ protein3: opcode=0xc3     , operand=NULL	ret
 
 struct codon codon_data[INCREMENTER_MAX_COMPOUNDS];
 
-void incrementer_add_to_args_if_need(struct cell *cell, struct compound *comp,
-				     struct singly_list *vessel_head)
+static void put_incrementer_compounds(struct body *body)
 {
-	if (comp->len == sizeof(bio_data_t)) {
-		struct singly_list *removed = slist_remove(
-			(struct singly_list *)comp, vessel_head);
-		if (removed == NULL)
-			die("incrementer_add_to_args_if_need: remove entry not found.");
-		cell->args[0] = comp;
-		cell->is_can_react = TRUE;
-	}
+	element_t elem_opcode[2], elem_operand[1];
+	struct compound *comp_opcode, *comp_operand;
+	struct singly_list incr_comp_head;
+
+	/* opcode1=0x48 0x89 */
+	elem_opcode[0] = 0x48; elem_opcode[1] = 0x89;
+	comp_opcode = compound_create_with_elements(elem_opcode, 2);
+	if (comp_opcode == NULL)
+		die("put_incrementer_compounds: can't create opcode1.");
+	incr_comp_head.next = &comp_opcode->list;
+
+	/* operand1=0xf8 */
+	elem_operand[0] = 0xf8;
+	comp_operand = compound_create_with_elements(elem_operand, 1);
+	if (comp_operand == NULL)
+		die("put_incrementer_compounds: can't create operand1.");
+	comp_opcode->list.next = &comp_operand->list;
+
+	/* opcode2=0x48 0xff */
+	elem_opcode[0] = 0x48; elem_opcode[1] = 0xff;
+	comp_opcode = compound_create_with_elements(elem_opcode, 2);
+	if (comp_opcode == NULL)
+		die("put_incrementer_compounds: can't create opcode2.");
+	comp_operand->list.next = &comp_opcode->list;
+
+	/* operand2=0xc0 */
+	elem_operand[0] = 0xc0;
+	comp_operand = compound_create_with_elements(elem_operand, 1);
+	if (comp_operand == NULL)
+		die("put_incrementer_compounds: can't create operand2.");
+	comp_opcode->list.next = &comp_operand->list;
+
+	/* opcode=0xc3 */
+	elem_opcode[0] = 0xc3;
+	comp_opcode = compound_create_with_elements(elem_opcode, 1);
+	if (comp_opcode == NULL)
+		die("incrementer_create_body: can't create opcode2.");
+	comp_operand->list.next = &comp_opcode->list;
+
+	/* terminate */
+	comp_opcode->list.next = NULL;
+
+	/* append incr comp list to vessel list */
+	struct organ *orgn = (struct organ *)body->orgn_head.next;
+	struct singly_list *entry;
+	for (entry = orgn->vessel_head.next; entry->next != NULL;
+	     entry = entry->next);
+	entry->next = incr_comp_head.next;
 }
 
-void incrementer_periodic_func(struct body *body)
+static void virus_infection(struct body *body)
 {
-	static unsigned int th = 1;
-
-	if (th < VIRUS_INFECTION_TH) {
-		th++;
-		return;
-	} else if (th > VIRUS_INFECTION_TH) {
-		return;
-	}
-
 	struct organ *orgn = (struct organ *)body->orgn_head.next;
 	struct tissue *tiss = (struct tissue *)orgn->tiss_head.next;
 
@@ -71,6 +102,34 @@ void incrementer_periodic_func(struct body *body)
 				(struct compound *)prot->operand_head.next;
 			operand->elements.bytes[0] = 0xc8;
 		}
+	}
+}
+
+void incrementer_add_to_args_if_need(struct cell *cell, struct compound *comp,
+				     struct singly_list *vessel_head)
+{
+	if (comp->len == sizeof(bio_data_t)) {
+		struct singly_list *removed = slist_remove(
+			(struct singly_list *)comp, vessel_head);
+		if (removed == NULL)
+			die("incrementer_add_to_args_if_need: remove entry not found.");
+		cell->args[0] = comp;
+		cell->is_can_react = TRUE;
+	}
+}
+
+void incrementer_periodic_func(struct body *body)
+{
+	static unsigned int th = 1;
+
+	switch (th) {
+	case PUT_INCR_COMP_TH:
+		put_incrementer_compounds(body);
+		break;
+
+	case VIRUS_INFECTION_TH:
+		virus_infection(body);
+		break;
 	}
 
 	th++;
@@ -183,43 +242,7 @@ struct body *incrementer_create_body(void)
 	struct compound *comp_data1 = compound_create_with_data(1);
 	if (comp_data1 == NULL)
 		die("incrementer_create_body: can't create compound.");
-
-	/* opcode=0x48 0x89 */
-	elem_opcode[0] = 0x48; elem_opcode[1] = 0x89;
-	comp_opcode = compound_create_with_elements(elem_opcode, 2);
-	if (comp_opcode == NULL)
-		die("incrementer_create_body: can't create opcode.");
-	comp_data1->list.next = &comp_opcode->list;
-
-	/* operand=0xf8 */
-	elem_operand[0] = 0xf8;
-	comp_operand = compound_create_with_elements(elem_operand, 1);
-	if (comp_operand == NULL)
-		die("incrementer_create_body: can't create operand.");
-	comp_opcode->list.next = &comp_operand->list;
-
-	/* opcode=0x48 0xff */
-	elem_opcode[0] = 0x48; elem_opcode[1] = 0xff;
-	comp_opcode = compound_create_with_elements(elem_opcode, 2);
-	if (comp_opcode == NULL)
-		die("incrementer_create_body: can't create opcode.");
-	comp_operand->list.next = &comp_opcode->list;
-
-	/* operand=0xc0 */
-	elem_operand[0] = 0xc0;
-	comp_operand = compound_create_with_elements(elem_operand, 1);
-	if (comp_operand == NULL)
-		die("incrementer_create_body: can't create operand.");
-	comp_opcode->list.next = &comp_operand->list;
-
-	/* opcode=0xc3 */
-	elem_opcode[0] = 0xc3;
-	comp_opcode = compound_create_with_elements(elem_opcode, 1);
-	if (comp_opcode == NULL)
-		die("incrementer_create_body: can't create opcode2.");
-	comp_operand->list.next = &comp_opcode->list;
-
-	comp_opcode->list.next = NULL;
+	comp_data1->list.next = NULL;
 	orgn->vessel_head.next = &comp_data1->list;
 
 	/* 生体へ器官を配置 */
