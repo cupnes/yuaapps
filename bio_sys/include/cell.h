@@ -53,3 +53,5 @@ void cell_decompose(struct cell *cell, struct singly_list *vessel_head);
 bool_t cell_is_needed_compound(struct cell *cell, struct compound *comp);
 void cell_update_prot_stores(struct cell *cell);
 struct cell *cell_division(struct cell *cell);
+void cell_dump_entry(struct cell *cell);
+void cell_dump_list(struct singly_list *list_head);

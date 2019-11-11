@@ -12,6 +12,7 @@
 #define PUT_INCR_COMP_TH	10
 #define VIRUS_INFECTION_TH	30
 #define FIRST_CELL_LIFE_DURATION	40
+#define INITIAL_DATA	0
 
 /* インクリメンタ細胞の機械語コード
 protein1: opcode=0x48 0x89, operand=0xf8	mov %rdi,%rax
@@ -239,7 +240,7 @@ struct body *incrementer_create_body(void)
 
 	/* 器官の管に初期値となる化合物を配置 */
 	/* データ1 */
-	struct compound *comp_data1 = compound_create_with_data(1);
+	struct compound *comp_data1 = compound_create_with_data(INITIAL_DATA);
 	if (comp_data1 == NULL)
 		die("incrementer_create_body: can't create compound.");
 	comp_data1->list.next = NULL;

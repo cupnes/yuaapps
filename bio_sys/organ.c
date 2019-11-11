@@ -59,7 +59,7 @@ void organ_dump_vessel(struct organ *orgn)
 	struct singly_list *comp;
 	for (comp = orgn->vessel_head.next; comp != NULL; comp = comp->next) {
 		struct compound *c = (struct compound *)comp;
-		compound_dump_elements(c);
+		compound_dump_entry(c);
 		if (comp->next != NULL)
 			puts(", ");
 	}

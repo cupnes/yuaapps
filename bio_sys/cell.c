@@ -245,9 +245,9 @@ void cell_decompose(struct cell *cell, struct singly_list *vessel_head)
 {
 	struct singly_list *prot;
 	for (prot = cell->prot_head.next; prot != NULL; prot = prot->next)
-		prot_decompose((struct protein *)prot, vessel_head);
+		protein_decompose((struct protein *)prot, vessel_head);
 	for (prot = cell->prot_store_head.next; prot != NULL; prot = prot->next)
-		prot_decompose((struct protein *)prot, vessel_head);
+		protein_decompose((struct protein *)prot, vessel_head);
 
 	struct singly_list *comp, *next;
 	for (comp = cell->comp_store_head.next; comp != NULL; comp = next) {
@@ -373,4 +373,26 @@ struct cell *cell_division(struct cell *cell)
 	/* protein_dump_list(&cell_new->prot_head); */
 
 	return cell_new;
+}
+
+void cell_dump_entry(struct cell *cell)
+{
+	putchar('(');
+	struct singly_list *entry;
+	for (entry = cell->prot_head.next; entry != NULL; entry = entry->next) {
+		protein_dump_entry((struct protein *)entry);
+		if (entry->next != NULL)
+			putchar(',');
+	}
+	putchar(')');
+}
+
+void cell_dump_list(struct singly_list *list_head)
+{
+	struct singly_list *entry;
+	for (entry = list_head->next; entry != NULL; entry = entry->next) {
+		cell_dump_entry((struct cell *)entry);
+		if (entry->next != NULL)
+			putchar(',');
+	}
 }

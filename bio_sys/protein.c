@@ -66,7 +66,7 @@ unsigned int protein_bond_compounds(struct protein *prot, unsigned char *buf)
 	return len;
 }
 
-void prot_decompose(struct protein *prot, struct singly_list *vessel_head)
+void protein_decompose(struct protein *prot, struct singly_list *vessel_head)
 {
 	struct singly_list *comp, *next;
 	for (comp = prot->operand_head.next; comp != NULL; comp = next) {
@@ -79,32 +79,30 @@ void prot_decompose(struct protein *prot, struct singly_list *vessel_head)
 	prot->opcode = NULL;
 }
 
-void protein_dump(struct protein *prot)
+void protein_dump_entry(struct protein *prot)
 {
-	putchar('[');
+	compound_dump_entry(prot->opcode);
 
-	compound_dump_elements(prot->opcode);
+	if (prot->operand_head.next == NULL)
+		return;
 
-	putchar(':');
+	putchar('-');
 
 	struct singly_list *entry;
 	for (entry = prot->operand_head.next; entry != NULL;
 	     entry = entry->next) {
-		compound_dump_elements((struct compound *)entry);
+		compound_dump_entry((struct compound *)entry);
 		if (entry->next != NULL)
-			putchar(',');
+			putchar('-');
 	}
-
-	putchar(']');
 }
 
 void protein_dump_list(struct singly_list *prot_head)
 {
 	struct singly_list *entry;
 	for (entry = prot_head->next; entry != NULL; entry = entry->next) {
-		protein_dump((struct protein *)entry);
+		protein_dump_entry((struct protein *)entry);
 		if (entry->next != NULL)
 			putchar(',');
 	}
-	puts("\r\n");
 }
