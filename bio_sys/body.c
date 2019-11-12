@@ -56,8 +56,12 @@ void body_dump_status(struct body *body)
 	struct tissue *tiss = (struct tissue *)orgn->tiss_head.next;
 
 	puts("Cells:\r\n");
-	cell_dump_list(&tiss->cell_head);
-	puts("\r\n\r\n");
+	struct singly_list *entry;
+	for (entry = tiss->cell_head.next; entry != NULL; entry = entry->next) {
+		cell_dump_entry((struct cell *)entry);
+		puts("\r\n");
+	}
+	puts("\r\n");
 
 	puts("Data Compounds:\r\n");
 	compound_dump_list(&orgn->vessel_head, COMP_FILTER_DATA);
@@ -65,7 +69,7 @@ void body_dump_status(struct body *body)
 
 	puts("Code Compounds:\r\n");
 	compound_dump_list(&orgn->vessel_head, COMP_FILTER_CODE);
-	puts("\r\n\r\n");
+	puts("\r\n");
 }
 
 void body_show_initial_status(struct body *body)
