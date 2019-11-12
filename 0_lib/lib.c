@@ -265,6 +265,11 @@ void move_cursor(unsigned int x, unsigned int y)
 	syscall(SYSCALL_MOV_CUR, x, y, 0);
 }
 
+void move_cursor_text(unsigned int x, unsigned int y)
+{
+	syscall(SYSCALL_MOV_CUR, x * FONT_WIDTH, y * FONT_HEIGHT, 0);
+}
+
 unsigned int get_cursor_y(void)
 {
 	return syscall(SYSCALL_GET_CUR_Y, 0, 0, 0);
@@ -298,6 +303,11 @@ void draw_fg(struct file *img)
 void draw_image(struct image *img, unsigned int px, unsigned int py)
 {
 	syscall(SYSCALL_DRAW_IMG, (unsigned long long)img, px, py);
+}
+
+void fill_rect(struct rect *rect, struct pixelformat *color)
+{
+	syscall(SYSCALL_FILL_RECT, (unsigned long long)rect, (unsigned long long)color, 0);
 }
 
 void image_viewer(struct image *img)

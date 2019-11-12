@@ -21,6 +21,7 @@ protein3: opcode=0xc3     , operand=NULL	ret
  */
 
 struct codon codon_data[INCREMENTER_MAX_COMPOUNDS];
+struct compound *data_compound;
 
 static void put_incrementer_compounds(struct body *body)
 {
@@ -119,6 +120,94 @@ void incrementer_add_to_args_if_need(struct cell *cell, struct compound *comp,
 	}
 }
 
+struct rect th_rect = {
+	8 * FONT_WIDTH, 0,
+	FONT_WIDTH * 2, FONT_HEIGHT
+};
+
+struct rect cells_rect = {
+	0, 3 * FONT_HEIGHT,
+	FONT_WIDTH * 26, FONT_HEIGHT * 4
+};
+
+struct rect data_rect = {
+	15 * FONT_WIDTH, 8 * FONT_HEIGHT,
+	FONT_WIDTH * 2, FONT_HEIGHT
+};
+
+struct rect data_rect2 = {
+	0, 8 * FONT_HEIGHT,
+	FONT_WIDTH * 25, FONT_HEIGHT
+};
+
+struct rect code_rect = {
+	0, 11 * FONT_HEIGHT,
+	FONT_WIDTH * 26, FONT_HEIGHT * 2
+};
+
+struct pixelformat bg_color = {
+	0, 0, 0, 255
+};
+
+static void draw_template(void)
+{
+	clear_screen();
+
+	move_cursor_text(4, 0);
+	puts("### ");
+	putd(0, 2);
+	puts("th cycle ###");
+
+	move_cursor_text(0, 2);
+	puts("Cells:");
+
+	move_cursor_text(0, 7);
+	puts("Data Compounds:\r\n[");
+	puth(0, 16);
+	putchar(']');
+
+	move_cursor_text(0, 10);
+	puts("Code Compounds:");
+}
+
+static void update_screen(struct body *body, unsigned int th)
+{
+	struct organ *orgn = (struct organ *)body->orgn_head.next;
+	struct tissue *tiss = (struct tissue *)orgn->tiss_head.next;
+	struct singly_list *entry;
+
+	fill_rect(&th_rect, &bg_color);
+	move_cursor_text(8, 0);
+	putd(th, 2);
+
+	fill_rect(&cells_rect, &bg_color);
+	move_cursor_text(0, 3);
+	entry = tiss->cell_head.next;
+	cell_dump_entry((struct cell *)entry);
+
+	if (entry->next != NULL) {
+		move_cursor_text(0, 5);
+		cell_dump_entry((struct cell *)entry->next);
+	}
+
+	/* fill_rect(&data_rect, &bg_color); */
+	/* move_cursor_text(15, 8); */
+	/* puth(data_compound->elements.data, 2); */
+
+	fill_rect(&data_rect2, &bg_color);
+	move_cursor_text(0, 8);
+	compound_dump_list(&orgn->vessel_head, COMP_FILTER_DATA);
+
+	fill_rect(&code_rect, &bg_color);
+	move_cursor_text(0, 11);
+	compound_dump_list(&orgn->vessel_head, COMP_FILTER_CODE);
+}
+
+void incrementer_init_func(struct body *body __attribute__((unused)))
+{
+	draw_template();
+}
+
 void incrementer_periodic_func(struct body *body)
 {
 	static unsigned int th = 1;
@@ -132,6 +221,8 @@ void incrementer_periodic_func(struct body *body)
 		virus_infection(body);
 		break;
 	}
+
+	update_screen(body, th);
 
 	th++;
 }
@@ -240,16 +331,17 @@ struct body *incrementer_create_body(void)
 
 	/* 器官の管に初期値となる化合物を配置 */
 	/* データ1 */
-	struct compound *comp_data1 = compound_create_with_data(INITIAL_DATA);
-	if (comp_data1 == NULL)
-		die("incrementer_create_body: can't create compound.");
-	comp_data1->list.next = NULL;
-	orgn->vessel_head.next = &comp_data1->list;
+	data_compound = compound_create_with_data(INITIAL_DATA);
+	if (data_compound == NULL)
+		die("incrementer_create_body: can't create data compound.");
+	data_compound->list.next = NULL;
+	orgn->vessel_head.next = &data_compound->list;
 
 	/* 生体へ器官を配置 */
 	struct body *body = body_create_with_organ(&orgn->list);
 	if (body == NULL)
 		die("incrementer_create_body: can't create body.");
+	body->init_func_hook = incrementer_init_func;
 	body->periodic_func_hook = incrementer_periodic_func;
 
 	/* protein_dump_list(&cell->prot_head); */

@@ -2,7 +2,7 @@
 #include <body.h>
 #include <lib.h>
 
-#define BUSY_LOOP_CYCLES	(BODY_CYCLE_US * 100)
+#define BUSY_LOOP_CYCLES	(BODY_CYCLE_US * 300)
 
 struct body body_pool[MAX_POOL_BODIES];
 unsigned int is_body_creation;
@@ -24,6 +24,7 @@ struct body *body_create(void)
 			body_pool[i].is_destroyed = FALSE;
 			spin_unlock(&is_body_creation);
 			body_pool[i].orgn_head.next = NULL;
+			body_pool[i].init_func_hook = NULL;
 			body_pool[i].periodic_func_hook = NULL;
 			return &body_pool[i];
 		}
@@ -72,9 +73,12 @@ void body_dump_status(struct body *body)
 	puts("\r\n");
 }
 
-void body_show_initial_status(struct body *body)
+void body_init(struct body *body)
 {
-	body_dump_status(body);
+	if (body->init_func_hook != NULL)
+		body->init_func_hook(body);
+
+	/* body_dump_status(body); */
 
 	unsigned long long _wait = BUSY_LOOP_CYCLES;
 	while (_wait--);
@@ -82,8 +86,6 @@ void body_show_initial_status(struct body *body)
 
 void body_run(struct body *body)
 {
-	body_show_initial_status(body);
-
 	while (TRUE) {
 		struct organ *orgn = (struct organ *)body->orgn_head.next;
 
@@ -96,8 +98,7 @@ void body_run(struct body *body)
 		if (body->periodic_func_hook != NULL)
 			body->periodic_func_hook(body);
 
-		/* ステータスダンプ */
-		body_dump_status(body);
+		/* body_dump_status(body); */
 
 		/* 次の周期まで待つ */
 		/* sleep(BODY_CYCLE_US); */

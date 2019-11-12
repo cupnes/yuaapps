@@ -12,10 +12,12 @@ struct body {
 
 	/* Attributes */
 	bool_t is_destroyed;
+	void (*init_func_hook)(struct body *body);
 	void (*periodic_func_hook)(struct body *body);
 };
 
 void body_pool_init(void);
 struct body *body_create(void);
 struct body *body_create_with_organ(struct singly_list *orgn_1st_entry);
+void body_init(struct body *body);
 void body_run(struct body *body);
