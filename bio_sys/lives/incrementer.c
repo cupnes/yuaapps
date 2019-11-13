@@ -136,8 +136,8 @@ struct rect data_rect = {
 };
 
 struct rect data_rect2 = {
-	0, 8 * FONT_HEIGHT,
-	FONT_WIDTH * 25, FONT_HEIGHT
+	FONT_WIDTH * 22, 8 * FONT_HEIGHT,
+	FONT_WIDTH * 2, FONT_HEIGHT
 };
 
 struct rect code_rect = {
@@ -149,8 +149,12 @@ struct pixelformat bg_color = {
 	0, 0, 0, 255
 };
 
-static void draw_template(void)
+static void draw_template(struct body *body)
 {
+	struct organ *orgn = (struct organ *)body->orgn_head.next;
+	struct tissue *tiss = (struct tissue *)orgn->tiss_head.next;
+	struct singly_list *entry;
+
 	clear_screen();
 
 	move_cursor_text(4, 0);
@@ -159,12 +163,13 @@ static void draw_template(void)
 	puts("th cycle ###");
 
 	move_cursor_text(0, 2);
-	puts("Cells:");
+	puts("Cells:\r\n");
+	entry = tiss->cell_head.next;
+	cell_dump_entry((struct cell *)entry);
 
 	move_cursor_text(0, 7);
-	puts("Data Compounds:\r\n[");
-	puth(0, 16);
-	putchar(']');
+	puts("Data Compounds:\r\n");
+	puts("[00 00 00 00 00 00 00 00]");
 
 	move_cursor_text(0, 10);
 	puts("Code Compounds:");
@@ -175,6 +180,7 @@ static void update_screen(struct body *body, unsigned int th)
 	struct organ *orgn = (struct organ *)body->orgn_head.next;
 	struct tissue *tiss = (struct tissue *)orgn->tiss_head.next;
 	struct singly_list *entry;
+	struct compound *comp;
 
 	fill_rect(&th_rect, &bg_color);
 	move_cursor_text(8, 0);
@@ -195,17 +201,22 @@ static void update_screen(struct body *body, unsigned int th)
 	/* puth(data_compound->elements.data, 2); */
 
 	fill_rect(&data_rect2, &bg_color);
-	move_cursor_text(0, 8);
-	compound_dump_list(&orgn->vessel_head, COMP_FILTER_DATA);
+	move_cursor_text(22, 8);
+	for (entry = orgn->vessel_head.next; entry != NULL;
+	     entry = entry->next) {
+		comp = (struct compound *)entry;
+		if (compound_is_data(comp) == TRUE)
+			puth(comp->elements.bytes[0], 2);
+	}
 
 	fill_rect(&code_rect, &bg_color);
 	move_cursor_text(0, 11);
 	compound_dump_list(&orgn->vessel_head, COMP_FILTER_CODE);
 }
 
-void incrementer_init_func(struct body *body __attribute__((unused)))
+void incrementer_init_func(struct body *body)
 {
-	draw_template();
+	draw_template(body);
 }
 
 void incrementer_periodic_func(struct body *body)

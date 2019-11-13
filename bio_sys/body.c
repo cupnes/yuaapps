@@ -2,7 +2,7 @@
 #include <body.h>
 #include <lib.h>
 
-#define BUSY_LOOP_CYCLES	(BODY_CYCLE_US * 300)
+#define BUSY_LOOP_CYCLES	(BODY_CYCLE_US * 100)
 
 struct body body_pool[MAX_POOL_BODIES];
 unsigned int is_body_creation;
