@@ -9,9 +9,9 @@
 #include <lib.h>
 
 #define INCREMENTER_MAX_COMPOUNDS	5
-#define PUT_INCR_COMP_TH	10
-#define VIRUS_INFECTION_TH	30
-#define FIRST_CELL_LIFE_DURATION	40
+#define PUT_INCR_COMP_TH	30
+#define VIRUS_INFECTION_TH	40
+#define FIRST_CELL_LIFE_DURATION	50
 #define INITIAL_DATA	0
 
 /* インクリメンタ細胞の機械語コード
