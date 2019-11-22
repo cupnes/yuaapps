@@ -82,8 +82,9 @@ void body_init(struct body *body)
 
 	/* body_dump_status(body); */
 
-	unsigned long long _wait = BUSY_LOOP_CYCLES;
-	while (_wait--);
+	sleep(BODY_CYCLE_US);
+	/* unsigned long long _wait = BUSY_LOOP_CYCLES; */
+	/* while (_wait--); */
 }
 
 void body_run(struct body *body)
@@ -103,8 +104,8 @@ void body_run(struct body *body)
 		/* body_dump_status(body); */
 
 		/* 次の周期まで待つ */
-		/* sleep(BODY_CYCLE_US); */
-		unsigned long long _wait = BUSY_LOOP_CYCLES;
-		while (_wait--);
+		sleep(BODY_CYCLE_US);
+		/* unsigned long long _wait = BUSY_LOOP_CYCLES; */
+		/* while (_wait--); */
 	}
 }
