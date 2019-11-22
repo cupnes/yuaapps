@@ -28,6 +28,7 @@ protein3: opcode=0xc3     , operand=NULL	ret
 
 struct codon codon_data[INCREMENTER_MAX_COMPOUNDS];
 struct compound *data_compound;
+unsigned int incr_cycle_num;
 
 static void put_incrementer_compounds(struct body *body)
 {
@@ -181,7 +182,7 @@ static void draw_template(struct body *body)
 	puts("Code Compounds:");
 }
 
-static void update_screen(struct body *body, unsigned int th)
+static void update_screen(struct body *body)
 {
 	struct organ *orgn = (struct organ *)body->orgn_head.next;
 	struct tissue *tiss = (struct tissue *)orgn->tiss_head.next;
@@ -190,7 +191,7 @@ static void update_screen(struct body *body, unsigned int th)
 
 	fill_rect(&th_rect, &bg_color);
 	move_cursor_text(8, 0);
-	putd(th, 2);
+	putd(incr_cycle_num, 2);
 
 	fill_rect(&cells_rect, &bg_color);
 	move_cursor_text(0, 3);
@@ -227,9 +228,7 @@ void incrementer_init_func(struct body *body)
 
 void incrementer_periodic_func(struct body *body)
 {
-	static unsigned int th = 1;
-
-	switch (th) {
+	switch (incr_cycle_num) {
 	case PUT_INCR_COMP_TH:
 		put_incrementer_compounds(body);
 		break;
@@ -239,9 +238,9 @@ void incrementer_periodic_func(struct body *body)
 		break;
 	}
 
-	update_screen(body, th);
+	update_screen(body);
 
-	th++;
+	incr_cycle_num++;
 }
 
 struct body *incrementer_create_body(void)
@@ -362,6 +361,8 @@ struct body *incrementer_create_body(void)
 	body->periodic_func_hook = incrementer_periodic_func;
 
 	/* protein_dump_list(&cell->prot_head); */
+
+	incr_cycle_num = 1;
 
 	return body;
 }

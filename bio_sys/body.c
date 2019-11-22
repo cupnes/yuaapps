@@ -6,6 +6,7 @@
 
 struct body body_pool[MAX_POOL_BODIES];
 unsigned int is_body_creation;
+unsigned int cycle_num;
 
 void body_pool_init(void)
 {
@@ -48,7 +49,6 @@ void body_dump_status(struct body *body)
 {
 	clear_screen();
 
-	static unsigned int cycle_num = 0;
 	puts("    ### ");
 	putd(cycle_num++, 2);
 	puts("th cycle ###\r\n\r\n");
@@ -75,6 +75,8 @@ void body_dump_status(struct body *body)
 
 void body_init(struct body *body)
 {
+	cycle_num = 0;
+
 	if (body->init_func_hook != NULL)
 		body->init_func_hook(body);
 
