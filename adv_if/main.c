@@ -65,6 +65,8 @@ unsigned char is_43 = 0;
 unsigned char is_megane = 0;
 unsigned int exec_counter = 0;
 
+unsigned char is_running_task = 0;
+
 #define OSUNC_NUM_SLIDES 15
 struct file e_osunc = {
 	"e.osunc", 0
@@ -125,16 +127,39 @@ int external_app_tid = 0;
 
 /* TODO: current_yua */
 
+static void init(void);
+
 int main(void)
 {
+	init();
+
 	open_sysfiles();
-	/* e_auto_slideshow = open("e.auto_slideshow"); */
+	e_auto_slideshow = open("e.auto_slide");
 	/* current_yua = sysfile_list[SFID_YUA_IMG]; */
 	/* osunc_init(); */
 
 	redraw();
 
 	return 0;
+}
+
+static void init(void)
+{
+	unsigned int i;
+
+	for (i = 0; i < MAX_SYSFILES; i++)
+		sysfile_list[i] = NULL;
+
+	current_file_idx = 0;
+	is_43 = FALSE;
+	is_megane = FALSE;
+	exec_counter = 0;
+	is_running_task = FALSE;
+	is_running_osunc = FALSE;
+	is_running_slideshow = FALSE;
+	current_slidefile_idx = 0;
+	is_running_auto_slideshow = FALSE;
+	external_app_tid = 0;
 }
 
 static void open_sysfiles(void)
@@ -190,8 +215,6 @@ static void view_image(struct file *img_file)
 
 static void kbc_handler(unsigned char c)
 {
-	static unsigned char is_running_task = 0;
-
 	if (is_running_task) {
 		is_running_task = 0;
 		redraw();

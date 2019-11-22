@@ -7,6 +7,9 @@ DEPLOY_DIR ?= ../fs
 ifdef RUN_QEMU
 	CFLAGS += -DRUN_QEMU
 endif
+ifdef FULL_DEMO
+	CFLAGS += -DFULL_DEMO
+endif
 
 $(TARGET): $(OBJS)
 	ld $(LDFLAGS) -o $@ $+
@@ -20,6 +23,6 @@ deploy: $(TARGET)
 	cp $(TARGET) $(DEPLOY_DIR)
 
 clean:
-	rm -f *~ *.o *.map $(TARGET) include/*~ include/lives/*~ lives/*~
+	rm -f *~ *.o *.map $(TARGET) include/*~ include/lives/*~ lives/*~ lives/*.o
 
 .PHONY: clean
