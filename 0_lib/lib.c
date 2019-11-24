@@ -235,6 +235,13 @@ unsigned long long get_files(struct file *files[])
 	return syscall(SYSCALL_GET_FILES, (unsigned long long)files, 0, 0);
 }
 
+unsigned long long get_files_with_prefix(
+	struct file *files[], char prefix)
+{
+	return syscall(SYSCALL_GET_FILES, (unsigned long long)files,
+		       (unsigned long long)prefix, 0);
+}
+
 void exec(struct file *file)
 {
 	syscall(SYSCALL_EXEC, (unsigned long long)file, 0, 0);

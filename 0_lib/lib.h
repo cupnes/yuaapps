@@ -333,6 +333,8 @@ void vcursor_reset(void);
 void set_kbc_handler(void *handler);
 struct file *open(char *file_name);
 unsigned long long get_files(struct file *files[]);
+unsigned long long get_files_with_prefix(
+	struct file *files[], char prefix);
 void exec(struct file *file);
 int exec_bg(struct file *file);
 void exec_ap(struct file *file, unsigned char pnum);
