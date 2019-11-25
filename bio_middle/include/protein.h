@@ -9,8 +9,7 @@ struct protein {
 	bool_t in_use;
 
 	/* Compounds */
-	struct compound *opcode;
-	struct singly_list operand_head;
+	struct singly_list comp_head;
 };
 
 void protein_pool_init(void);

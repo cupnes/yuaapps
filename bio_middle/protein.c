@@ -13,16 +13,11 @@ void protein_pool_init(void)
 
 void protein_dump_entry(struct protein *prot)
 {
-	compound_dump_entry(prot->opcode);
-
-	if (prot->operand_head.next == NULL)
+	if (prot->comp_head.next == NULL)
 		return;
 
-	putchar('-');
-
 	struct singly_list *entry;
-	for (entry = prot->operand_head.next; entry != NULL;
-	     entry = entry->next) {
+	for (entry = prot->comp_head.next; entry != NULL; entry = entry->next) {
 		compound_dump_entry((struct compound *)entry);
 		if (entry->next != NULL)
 			putchar('-');
