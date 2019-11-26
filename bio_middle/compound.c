@@ -3,12 +3,55 @@
 #define MAX_POOL_COMPOUNDS	100
 
 static struct compound compound_pool[MAX_POOL_COMPOUNDS];
+static unsigned int is_compound_creation;
 
 void compound_pool_init(void)
 {
 	unsigned int i;
 	for (i = 0; i < MAX_POOL_COMPOUNDS; i++)
 		compound_pool[i].in_use = FALSE;
+}
+
+struct compound *compound_create(void)
+{
+	spin_lock(&is_compound_creation);
+
+	unsigned int i;
+	for (i = 0; i < MAX_POOL_COMPOUNDS; i++) {
+		if (compound_pool[i].in_use == FALSE) {
+			compound_pool[i].in_use = TRUE;
+			spin_unlock(&is_compound_creation);
+			compound_pool[i].list.next = NULL;
+			compound_pool[i].len = 0;
+			return &compound_pool[i];
+		}
+	}
+
+	spin_unlock(&is_compound_creation);
+	return NULL;
+}
+
+struct compound *compound_create_with_elements(
+	element_t *elem_arry, unsigned int elem_len)
+{
+	struct compound *comp = compound_create();
+	if (comp == NULL)
+		return NULL;
+
+	memcpy(comp->elements.bytes, elem_arry, elem_len);
+	comp->len = elem_len;
+	return comp;
+}
+
+struct compound *compound_create_with_data(bio_data_t data)
+{
+	struct compound *comp = compound_create();
+	if (comp == NULL)
+		return NULL;
+
+	comp->elements.data = data;
+	comp->len = sizeof(bio_data_t);
+	return comp;
 }
 
 void compound_dump_entry(struct compound *comp)

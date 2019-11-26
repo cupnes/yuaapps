@@ -1,7 +1,5 @@
-#include <element.h>
 #include <protein.h>
 #include <cell.h>
-#include <lib.h>
 
 /* インクリメンタ細胞の機械語コード
 protein0: REX Prefix=0x48, Opcode=0x89, Operand(ModR/M)=0xf8	mov %rdi,%rax
@@ -10,14 +8,14 @@ protein2:                  Opcode=0xc3				ret
  */
 
 static void create_comp_codn_with_elem(
-	struct compound *comp, struct codon *codn,
+	struct compound **comp, struct codon **codn,
 	element_t *elem, unsigned int len)
 {
-	comp = compound_create_with_elements(elem, len);
-	if (comp == NULL)
+	*comp = compound_create_with_elements(elem, len);
+	if (*comp == NULL)
 		die("create_comp_codn_with_elem: can't create a compound.");
-	codn = codon_create_with_data(comp->elements.data);
-	if (codn == NULL)
+	*codn = codon_create_with_data((*comp)->elements.data);
+	if (*codn == NULL)
 		die("create_comp_codn_with_elem: can't create a codon.");
 }
 
@@ -40,12 +38,13 @@ struct cell *incrementer_create(void)
 	/* protein0: REX Prefix=0x48, Opcode=0x89, Operand(ModR/M)=0xf8 */
 	elem[0] = 0x48; elem[1] = 0x89; elem[2] = 0xf8;
 	for (i = 0; i < 3; i++)
-		create_comp_codn_with_elem(comp[i], codn[i], &elem[i], 1);
+		create_comp_codn_with_elem(&comp[i], &codn[i], &elem[i], 1);
 	for (i = 0; i < 2; i++) {
 		comp[i]->list.next = &comp[i + 1]->list;
 		codn[i]->list.next = &codn[i + 1]->list;
 	}
-	comp[2]->list.next = codn[2]->list.next = NULL;
+	comp[2]->list.next = NULL;
+	codn[2]->list.next = NULL;
 	prot[0] = protein_create_with_compounds(&comp[0]->list);
 	if (prot[0] == NULL)
 		die("incrementer_create: can't create prot0.");
@@ -55,7 +54,7 @@ struct cell *incrementer_create(void)
 	/* protein1: REX Prefix=0x48, Opcode=0xff, Operand(ModR/M)=0xc0 */
 	elem[0] = 0x48; elem[1] = 0xff; elem[2] = 0xc0;
 	for (i = 0; i < 3; i++)
-		create_comp_codn_with_elem(comp[i], codn[i], &elem[i], 1);
+		create_comp_codn_with_elem(&comp[i], &codn[i], &elem[i], 1);
 	for (i = 0; i < 2; i++) {
 		comp[i]->list.next = &comp[i + 1]->list;
 		codn[i]->list.next = &codn[i + 1]->list;
@@ -69,7 +68,7 @@ struct cell *incrementer_create(void)
 
 	/* protein2: Opcode=0xc3 */
 	elem[0] = 0xc3;
-	create_comp_codn_with_elem(comp[0], codn[0], &elem[0], 1);
+	create_comp_codn_with_elem(&comp[0], &codn[0], &elem[0], 1);
 	comp[0]->list.next = codn[0]->list.next = NULL;
 	prot[2] = protein_create_with_compounds(&comp[0]->list);
 	if (prot[2] == NULL)
@@ -83,7 +82,7 @@ struct cell *incrementer_create(void)
 
 	/* 細胞にタンパク質のリストとDNAを設定 */
 	cell->prot_head.next = &prot[0]->list;
-	cell->codn_head.next = codon_head.next;
+	cell->codn_head.next = codn_head.next;
 
 	/* 細胞にその他の設定を行う */
 	cell->list.next = NULL;

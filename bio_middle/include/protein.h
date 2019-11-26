@@ -13,5 +13,8 @@ struct protein {
 };
 
 void protein_pool_init(void);
+struct protein *protein_create(void);
+struct protein *protein_create_with_compounds(
+	struct singly_list *comp_1st_entry);
 void protein_dump_entry(struct protein *prot);
 void protein_dump_list(struct singly_list *prot_head);

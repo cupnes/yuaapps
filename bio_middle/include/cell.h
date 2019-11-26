@@ -1,6 +1,5 @@
 #pragma once
 
-#include <bio_type.h>
 #include <compound.h>
 
 #define DEFAULT_LIFE_DURATION	100
@@ -27,10 +26,13 @@ struct cell {
 	struct singly_list codn_head;
 
 	/* Attributes */
-	unsigned int default_life_duration;
 	unsigned int life_duration;
+	unsigned int life_left;
 };
 
 void cell_pool_init(void);
+struct cell *cell_create(void);
+struct codon *codon_create(void);
+struct codon *codon_create_with_data(bio_data_t data);
 void cell_dump_entry(struct cell *cell);
 void cell_dump_list(struct singly_list *list_head);

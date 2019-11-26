@@ -40,6 +40,8 @@ static void run_bio_cycle_hook(struct bio_env *be, unsigned int cycle_num);
 
 int main(void)
 {
+	clear_screen();
+
 	/* 生体環境を初期化 */
 	struct bio_env be;
 	init_bio_env(&be);
@@ -99,9 +101,13 @@ static void dump_bio_status(struct bio_env *be, unsigned int cycle_num)
 
 	puts("Cells:\r\n");
 	cell_dump_list(&be->cell_head);
+	puts("\r\n");
+	puts("\r\n");
 
 	puts("Data Compounds:\r\n");
 	compound_dump_list(&be->comp_head, COMP_FILTER_DATA);
+	puts("\r\n");
+	puts("\r\n");
 
 	puts("Code Compounds:\r\n");
 	compound_dump_list(&be->comp_head, COMP_FILTER_CODE);

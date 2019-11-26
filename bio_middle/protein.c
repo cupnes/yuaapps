@@ -2,13 +2,44 @@
 
 #define MAX_POOL_PROTEINS	100
 
-struct protein protein_pool[MAX_POOL_PROTEINS];
+static struct protein protein_pool[MAX_POOL_PROTEINS];
+static unsigned int is_protein_creation;
 
 void protein_pool_init(void)
 {
 	unsigned int i;
 	for (i = 0; i < MAX_POOL_PROTEINS; i++)
 		protein_pool[i].in_use = FALSE;
+}
+
+struct protein *protein_create(void)
+{
+	spin_lock(&is_protein_creation);
+
+	unsigned int i;
+	for (i = 0; i < MAX_POOL_PROTEINS; i++) {
+		if (protein_pool[i].in_use == FALSE) {
+			protein_pool[i].in_use = TRUE;
+			spin_unlock(&is_protein_creation);
+			protein_pool[i].list.next = NULL;
+			protein_pool[i].comp_head.next = NULL;
+			return &protein_pool[i];
+		}
+	}
+
+	spin_unlock(&is_protein_creation);
+	return NULL;
+}
+
+struct protein *protein_create_with_compounds(
+	struct singly_list *comp_1st_entry)
+{
+	struct protein *prot = protein_create();
+	if (prot == NULL)
+		return NULL;
+
+	prot->comp_head.next = comp_1st_entry;
+	return prot;
 }
 
 void protein_dump_entry(struct protein *prot)
