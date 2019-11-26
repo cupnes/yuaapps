@@ -40,8 +40,6 @@ static void run_bio_cycle_hook(struct bio_env *be, unsigned int cycle_num);
 
 int main(void)
 {
-	clear_screen();
-
 	/* 生体環境を初期化 */
 	struct bio_env be;
 	init_bio_env(&be);
