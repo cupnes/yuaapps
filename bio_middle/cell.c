@@ -82,6 +82,40 @@ struct codon *codon_create_with_data(bio_data_t data)
 	return codn;
 }
 
+bool_t cell_run(struct cell *cell)
+{
+	/* 化合物リストから化合物を一つ取得 */
+
+/*
+if (何か化合物を取得できた?) then (yes)
+  :代謝/運動|
+  if (エラーが返された?) then (yes)
+    :取得した化合物を化合物リストへ戻す;
+  else (no)
+    :代謝の生成物を化合物リストへ追加;
+  endif
+  :成長|
+  if (エラーが返された?) then (yes)
+    :取得した化合物を化合物リストへ戻す;
+  else (no)
+
+  endif
+      1. (分裂可能が返された場合)
+	 1. *増殖* を実施
+      2. (成功した場合)
+	 1. 特になし
+      3. (エラーが返された場合)
+	 1. 取得した化合物を環境へ放出する
+3. 寿命を1周期減らす
+   1. (寿命が0になった場合のみ実施)
+      1. *死* を実施
+	 - 自身を構成するタンパク質・化合物を化合物レベルまで分解して
+           化合物リストへ追加する
+
+*/
+	return TRUE;
+}
+
 void cell_dump_entry(struct cell *cell)
 {
 	putchar('(');

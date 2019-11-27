@@ -34,5 +34,6 @@ void cell_pool_init(void);
 struct cell *cell_create(void);
 struct codon *codon_create(void);
 struct codon *codon_create_with_data(bio_data_t data);
+bool_t cell_run(struct cell *cell);
 void cell_dump_entry(struct cell *cell);
 void cell_dump_list(struct singly_list *list_head);

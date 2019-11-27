@@ -113,29 +113,10 @@ static void dump_bio_status(struct bio_env *be, unsigned int cycle_num)
 
 static void run_bio_cycle(struct bio_env *be)
 {
-	/* unsigned int i; */
-
-	/* /\* 生物ファイルを全て取得 *\/ */
-	/* unsigned long long num_bio_files = */
-	/* 	get_files_with_prefix(bio_files, 'b'); */
-
-	/* /\* 化合物と実行ファイルをそれぞれリスト化 *\/ */
-	/* struct singly_list comp_head, exec_head; */
-	/* comp_head.next = exec_head.next = NULL; */
-	/* for (i = 0; i < num_bio_files; i++) { */
-	/* 	struct singly_list *entry; */
-	/* 	if (bio_files[i]->name[1] == 'c') { */
-	/* 		entry = (struct singly_list *) */
-	/* 			bio_files[i]->data; */
-	/* 		slist_prepend(entry, &comp_head); */
-	/* 	} else if (bio_files[i]->name[1] == 'e') { */
-	/* 		entry = (struct singly_list *) */
-	/* 			bio_files[i]->data; */
-	/* 		slist_prepend(entry, &exec_head); */
-	/* 	} */
-	/* } */
-
-	/* /\* 生体実行ファイルを全て実行 *\/ */
+	/* 生体実行ファイルを全て実行 */
+	struct singly_list *entry;
+	for (entry = be->cell_head.next; entry != NULL; entry = entry->next)
+		cell_run((struct cell *)entry);
 }
 
 static void run_bio_cycle_hook(struct bio_env *be, unsigned int cycle_num)
