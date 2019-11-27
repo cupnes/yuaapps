@@ -42,6 +42,21 @@ struct protein *protein_create_with_compounds(
 	return prot;
 }
 
+unsigned int protein_bond_compounds(struct protein *prot, unsigned char *buf)
+{
+	unsigned int len = 0;
+
+	struct singly_list *entry;
+	for (entry = prot->comp_head.next; entry != NULL; entry = entry->next) {
+		struct compound *comp = (struct compound *)entry;
+		memcpy(buf, comp->elements.bytes, comp->len);
+		len += comp->len;
+		buf += comp->len;
+	}
+
+	return len;
+}
+
 void protein_dump_entry(struct protein *prot)
 {
 	if (prot->comp_head.next == NULL)
