@@ -140,19 +140,20 @@ struct compound *biosys_pop_compound(enum comp_filter filter)
 		return (struct compound *)entry;
 	}
 
-	struct singly_list *parent = &be.comp_head;
+	struct singly_list *prev = &be.comp_head;
 	for (entry = be.comp_head.next; entry != NULL; entry = entry->next) {
 		struct compound *comp = (struct compound *)entry;
-		if ((filter == COMP_FILTER_CODE)
-		    && (compound_is_data(comp) == TRUE))
-			continue;
-		else if ((filter == COMP_FILTER_DATA)
-			 && (compound_is_data(comp) == FALSE))
-			continue;
 
-		parent->next = entry->next;
-		entry->next = NULL;
-		return comp;
+		if (((filter == COMP_FILTER_CODE)
+		     && (compound_is_data(comp) == FALSE))
+		    || ((filter == COMP_FILTER_DATA)
+			&& (compound_is_data(comp) == TRUE))) {
+			prev->next = entry->next;
+			entry->next = NULL;
+			return comp;
+		}
+
+		prev = entry;
 	}
 
 	return NULL;
