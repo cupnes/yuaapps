@@ -499,7 +499,7 @@ void slist_prepend(struct singly_list *entry, struct singly_list *head)
 void slist_append(struct singly_list *entry, struct singly_list *head)
 {
 	struct singly_list *iter;
-	for (iter = head->next; iter->next != NULL; iter = iter->next);
+	for (iter = head; iter->next != NULL; iter = iter->next);
 	iter->next = entry;
 }
 

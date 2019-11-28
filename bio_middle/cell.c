@@ -192,6 +192,7 @@ static void death(struct cell *cell)
 		struct protein *prot = (struct protein *)e1;
 		for (e2 = prot->comp_head.next; e2 != NULL; e2 = n2) {
 			n2 = e2->next;
+			e2->next = NULL;
 			biosys_push_compound((struct compound *)e2);
 		}
 		prot->comp_head.next = NULL;
@@ -205,7 +206,9 @@ static void death(struct cell *cell)
 		n1 = e1->next;
 		struct codon *codn = (struct codon *)e1;
 		if (codn->buf != NULL) {
-			biosys_push_compound((struct compound *)codn->buf);
+			struct compound *comp = (struct compound *)codn->buf;
+			comp->list.next = NULL;
+			biosys_push_compound(comp);
 			codn->buf = NULL;
 		}
 		codn->comp_data = 0;

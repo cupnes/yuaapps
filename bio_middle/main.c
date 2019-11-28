@@ -180,7 +180,7 @@ struct compound *biosys_pop_compound(enum comp_filter filter)
 
 void biosys_push_compound(struct compound *comp)
 {
-	slist_prepend(&comp->list, &be.comp_head);
+	slist_append(&comp->list, &be.comp_head);
 }
 
 void biosys_push_cell(struct cell *cell)
