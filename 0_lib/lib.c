@@ -496,6 +496,13 @@ void slist_prepend(struct singly_list *entry, struct singly_list *head)
 	head->next = entry;
 }
 
+void slist_append(struct singly_list *entry, struct singly_list *head)
+{
+	struct singly_list *iter;
+	for (iter = head->next; iter->next != NULL; iter = iter->next);
+	iter->next = entry;
+}
+
 struct singly_list *slist_remove(
 	struct singly_list *entry, struct singly_list *head)
 {

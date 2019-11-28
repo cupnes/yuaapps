@@ -382,6 +382,7 @@ struct singly_list {
 	struct singly_list *next;
 };
 void slist_prepend(struct singly_list *entry, struct singly_list *head);
+void slist_append(struct singly_list *entry, struct singly_list *head);
 struct singly_list *slist_remove(
 	struct singly_list *entry, struct singly_list *head);
 struct singly_list *slist_find_in(

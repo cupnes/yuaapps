@@ -14,15 +14,9 @@
 #define FG_G	255
 #define FG_B	255
 
-#ifdef FULL_DEMO
 #define PUT_INCR_COMP_CYCLE	10
 #define VIRUS_INFECTION_CYCLE	30
 #define FIRST_CELL_LIFE_DURATION	40
-#else
-#define PUT_INCR_COMP_CYCLE	50
-#define VIRUS_INFECTION_CYCLE	60
-#define FIRST_CELL_LIFE_DURATION	70
-#endif
 
 #define INITIAL_DATA	0
 
@@ -120,24 +114,48 @@ static void run_bio_cycle(void)
 
 static void run_bio_cycle_hook(unsigned int cycle_num)
 {
-	/* switch (cycle_num) { */
-	/* case PUT_INCR_COMP_CYCLE: */
-	/* 	incrementer_create_essential_compounds(); */
-	/* 	break; */
+	struct singly_list *comp_1st_entry;
 
-	/* case VIRUS_INFECTION_CYCLE: */
-	/* 	break; */
-	/* } */
+	switch (cycle_num) {
+	case PUT_INCR_COMP_CYCLE:
+		comp_1st_entry = incrementer_create_essential_compounds();
+		slist_append(comp_1st_entry, &be.comp_head);
+		break;
+
+	case VIRUS_INFECTION_CYCLE:
+		break;
+	}
 }
 
-struct compound *biosys_pop_compound(void)
+struct compound *biosys_pop_compound(enum comp_filter filter)
 {
 	if (be.comp_head.next == NULL)
 		return NULL;
 
-	struct singly_list *entry = be.comp_head.next;
-	be.comp_head.next = entry->next;
-	return (struct compound *)entry;
+	struct singly_list *entry;
+
+	if (filter == COMP_FILTER_NONE) {
+		entry = be.comp_head.next;
+		be.comp_head.next = entry->next;
+		return (struct compound *)entry;
+	}
+
+	struct singly_list *parent = &be.comp_head;
+	for (entry = be.comp_head.next; entry != NULL; entry = entry->next) {
+		struct compound *comp = (struct compound *)entry;
+		if ((filter == COMP_FILTER_CODE)
+		    && (compound_is_data(comp) == TRUE))
+			continue;
+		else if ((filter == COMP_FILTER_DATA)
+			 && (compound_is_data(comp) == FALSE))
+			continue;
+
+		parent->next = entry->next;
+		entry->next = NULL;
+		return comp;
+	}
+
+	return NULL;
 }
 
 void biosys_push_compound(struct compound *comp)

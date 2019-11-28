@@ -1,6 +1,8 @@
 #include <protein.h>
 #include <cell.h>
 
+#define NUM_COMPOUNDS	7
+
 /* インクリメンタ細胞の機械語コード
 protein0: REX Prefix=0x48, Opcode=0x89, Operand(ModR/M)=0xf8	mov %rdi,%rax
 protein1: REX Prefix=0x48, Opcode=0xff, Operand(ModR/M)=0xc0	inc %rax
@@ -88,4 +90,34 @@ struct cell *incrementer_create(void)
 	cell->list.next = NULL;
 
 	return cell;
+}
+
+struct singly_list *incrementer_create_essential_compounds(void)
+{
+	element_t code[] = {
+		0x48, 0x89, 0xf8,
+		0x48, 0xff, 0xc0,
+		0xc3
+	};
+
+	struct singly_list *comp_1st_entry;
+	struct singly_list *comp_prev;
+
+	unsigned int i;
+	for (i = 0; i < NUM_COMPOUNDS; i++) {
+		struct compound *comp =
+			compound_create_with_elements(&code[i], 1);
+		if (comp == NULL)
+			die("incrementer_c_e_c: can't create a compound.");
+
+		if (i == 0)
+			comp_1st_entry = &comp->list;
+		else
+			comp_prev->next = &comp->list;
+
+		comp_prev = &comp->list;
+	}
+	comp_prev->next = NULL;
+
+	return comp_1st_entry;
 }

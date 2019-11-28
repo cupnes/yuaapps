@@ -28,8 +28,13 @@ static void init_cell(struct cell *cell)
 	cell->life_left = DEFAULT_LIFE_DURATION;
 }
 
-static void metabolism_and_motion(struct cell *cell, struct compound *comp)
+static void metabolism_and_motion(struct cell *cell)
 {
+	/* データ化合物を一つ取得 */
+	struct compound *comp = biosys_pop_compound(COMP_FILTER_DATA);
+	if (comp == NULL)
+		return;
+
 	/* 全てのタンパク質とその中の化合物が持つデータをbond_buf内で結合 */
 	unsigned int idx = 0;
 	struct singly_list *prot;
@@ -49,8 +54,11 @@ static void metabolism_and_motion(struct cell *cell, struct compound *comp)
 	biosys_push_compound(comp);
 }
 
-static bool_t growth(struct cell *cell, struct compound *comp)
+static bool_t growth(struct cell *cell)
 {
+	/* コード化合物を一つ取得 */
+	struct compound *comp = biosys_pop_compound(COMP_FILTER_CODE);
+
 	struct singly_list *entry;
 
 	/* 空きのあるコドンがあれば結合する */
@@ -272,26 +280,18 @@ struct codon *codon_create_with_data(bio_data_t data)
 
 bool_t cell_run(struct cell *cell)
 {
-	bool_t is_dead = FALSE;
+	/* 代謝/運動 */
+	metabolism_and_motion(cell);
 
-	/* 化合物リストから化合物を一つ取得 */
-	struct compound *comp = biosys_pop_compound();
-
-	if (comp != NULL) {
-		if (compound_is_data(comp) == TRUE) {
-			/* 代謝/運動 */
-			metabolism_and_motion(cell, comp);
-		} else {
-			/* 成長 */
-			bool_t is_divisible = growth(cell, comp);
-			if (is_divisible == TRUE) {
-				/* 増殖 */
-				division(cell);
-			}
-		}
+	/* 成長 */
+	bool_t is_divisible = growth(cell);
+	if (is_divisible == TRUE) {
+		/* 増殖 */
+		division(cell);
 	}
 
 	/* 寿命を減らす */
+	bool_t is_dead = FALSE;
 	cell->life_left--;
 	if (cell->life_left == 0) {
 		/* 死 */
