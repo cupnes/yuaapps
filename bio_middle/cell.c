@@ -312,6 +312,10 @@ void cell_dump_entry(struct cell *cell)
 			putchar(',');
 	}
 	putchar(')');
+
+	putchar('(');
+	putd(cell->life_left, 2);
+	putchar(')');
 }
 
 void cell_dump_list(struct singly_list *list_head)

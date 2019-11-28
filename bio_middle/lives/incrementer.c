@@ -2,6 +2,7 @@
 #include <cell.h>
 
 #define NUM_COMPOUNDS	7
+#define INCREMENTER_LIFE_DURATION	40
 
 /* インクリメンタ細胞の機械語コード
 protein0: REX Prefix=0x48, Opcode=0x89, Operand(ModR/M)=0xf8	mov %rdi,%rax
@@ -88,6 +89,8 @@ struct cell *incrementer_create(void)
 
 	/* 細胞にその他の設定を行う */
 	cell->list.next = NULL;
+	cell->life_duration = INCREMENTER_LIFE_DURATION;
+	cell->life_left = cell->life_duration;
 
 	return cell;
 }
