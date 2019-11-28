@@ -103,14 +103,15 @@ static struct singly_list *central_dogma(struct cell *cell)
 		struct protein *prot = (struct protein *)e1;
 		struct compound *comp_codn;
 		for (e2 = prot->comp_head.next; e2 != NULL; e2 = e2->next) {
-			struct compound *comp = (struct compound *)e2;
+			/* struct compound *comp = (struct compound *)e2; */
 			struct codon *codn = (struct codon *)codn_ptr;
 			if (codn == NULL)
 				die("central_dogma: DNA error(codn length)");
 			comp_codn = codn->buf;
 
-			if (comp->elements.data != comp_codn->elements.data)
-				die("central_dogma: DNA error(prot != codn)");
+			/* ウィルス感染デモ用に無効化 */
+			/* if (comp->elements.data != comp_codn->elements.data) */
+			/* 	die("central_dogma: DNA error(prot != codn)"); */
 
 			parent_comp->next = &comp_codn->list;
 			codn->buf = NULL;

@@ -111,6 +111,25 @@ static void run_bio_cycle(void)
 		cell_run((struct cell *)entry);
 }
 
+static void infect_virus(struct cell *cell)
+{
+	struct singly_list *mov = cell->prot_head.next;
+	struct singly_list *inc = mov->next;
+
+	struct protein *prot = (struct protein *)inc;
+
+	struct singly_list *rex = prot->comp_head.next;
+	struct singly_list *opcode = rex->next;
+	struct singly_list *operand = opcode->next;
+
+	struct compound *comp = (struct compound *)operand;
+
+	if (comp->elements.bytes[0] != 0xc0)
+		die("infect_virus: this is not inc instruction.");
+
+	comp->elements.bytes[0] = 0xc8;
+}
+
 static void run_bio_cycle_hook(unsigned int cycle_num)
 {
 	struct singly_list *comp_1st_entry;
@@ -122,6 +141,7 @@ static void run_bio_cycle_hook(unsigned int cycle_num)
 		break;
 
 	case VIRUS_INFECTION_CYCLE:
+		infect_virus((struct cell *)be.cell_head.next);
 		break;
 	}
 }
