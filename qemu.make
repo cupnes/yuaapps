@@ -1,7 +1,7 @@
 TARGET = fs.img
 WORK_DIR = fs_qemu
 FILES = init urclock bg.bgra lsbg.bgra urclockbg.bgra
-FILES += e.biosys e.biosys_full e.auto_slide
+FILES += e.biosys e.biosys_full e.bio_mid e.auto_slide
 FILES += $(notdir $(shell ls fs_qemu/s.* 2>/dev/null || true))
 FILES += $(notdir $(shell ls fs_qemu/i.* 2>/dev/null || true))
 FS_DIR ?= ../fs
@@ -31,6 +31,9 @@ $(WORK_DIR)/e.biosys_full:
 	make -C bio_sys RUN_QEMU=true FULL_DEMO=true
 	cp bio_sys/init $@
 
+$(WORK_DIR)/e.bio_mid:
+	make -C bio_middle RUN_QEMU=true DEPLOY_DIR=../$(WORK_DIR) deploy
+
 $(WORK_DIR)/e.auto_slide:
 	make -C auto_slideshow deploy DEPLOY_DIR=../$(WORK_DIR) RUN_QEMU=true
 
@@ -48,9 +51,11 @@ clean:
 	make -C adv_if clean
 	make -C urclock clean
 	make -C bio_sys clean
+	make -C bio_middle clean
 	make -C auto_slideshow clean
 	rm -f *~ $(WORK_DIR)/*~ $(WORK_DIR)/init $(WORK_DIR)/urclock	\
 		$(WORK_DIR)/e.biosys $(WORK_DIR)/e.biosys_full		\
-		$(WORK_DIR)/e.auto_slide $(WORK_DIR)/$(TARGET)
+		$(WORK_DIR)/e.bio_mid $(WORK_DIR)/e.auto_slide		\
+		$(WORK_DIR)/$(TARGET)
 
 .PHONY: deploy run clean

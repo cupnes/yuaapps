@@ -40,22 +40,27 @@ int main(void)
 	set_bg(BG_R, BG_G, BG_B);
 	set_fg(FG_R, FG_G, FG_B);
 
-	unsigned int cycle_num;
-	for (cycle_num = 0; cycle_num < MAX_CYCLES; cycle_num++) {
+	/* 0周期目 */
+	unsigned int cycle_num = 0;
+	clear_screen();			/* 画面クリア */
+	dump_bio_status(cycle_num);	/* 現在の状態をダンプ */
+	sleep(SLEEP_CYCLE_US);		/* 次の周期を待つ */
+
+	for (cycle_num = 1; cycle_num < MAX_CYCLES; cycle_num++) {
 		/* 画面クリア */
 		clear_screen();
-
-		/* 現在の状態をダンプ */
-		dump_bio_status(cycle_num);
-
-		/* 次の周期を待つ */
-		sleep(SLEEP_CYCLE_US);
 
 		/* 生体環境の1周期を実施 */
 		run_bio_cycle();
 
 		/* 周期毎追加処理を呼び出す */
 		run_bio_cycle_hook(cycle_num);
+
+		/* 現在の状態をダンプ */
+		dump_bio_status(cycle_num);
+
+		/* 次の周期を待つ */
+		sleep(SLEEP_CYCLE_US);
 	}
 
 	return 0;

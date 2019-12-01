@@ -308,14 +308,14 @@ bool_t cell_run(struct cell *cell)
 
 void cell_dump_entry(struct cell *cell)
 {
-	putchar('(');
+	putchar('{');
 	struct singly_list *entry;
 	for (entry = cell->prot_head.next; entry != NULL; entry = entry->next) {
 		protein_dump_entry((struct protein *)entry);
 		if (entry->next != NULL)
 			putchar(',');
 	}
-	putchar(')');
+	putchar('}');
 
 	putchar('(');
 	putd(cell->life_left, 2);
@@ -327,7 +327,9 @@ void cell_dump_list(struct singly_list *list_head)
 	struct singly_list *entry;
 	for (entry = list_head->next; entry != NULL; entry = entry->next) {
 		cell_dump_entry((struct cell *)entry);
-		if (entry->next != NULL)
-			putchar(',');
+		if (entry->next != NULL) {
+			/* putchar(','); */
+			puts("\r\n");
+		}
 	}
 }

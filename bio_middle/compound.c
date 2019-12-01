@@ -56,23 +56,20 @@ struct compound *compound_create_with_data(bio_data_t data)
 
 void compound_dump_entry(struct compound *comp)
 {
-	char bracket_open, bracket_close;
 	if (compound_is_data(comp) == TRUE) {
-		bracket_open  = '[';
-		bracket_close = ']';
+		putchar('[');
+		puth(comp->elements.data ,16);
+		putchar(']');
 	} else {
-		bracket_open  = '<';
-		bracket_close = '>';
+		putchar('<');
+		unsigned long long i;
+		for (i = 0; i < comp->len; i++) {
+			puth(comp->elements.bytes[i], 2);
+			if (i < (comp->len - 1))
+				putchar(' ');
+		}
+		putchar('>');
 	}
-
-	putchar(bracket_open);
-	unsigned long long i;
-	for (i = 0; i < comp->len; i++) {
-		puth(comp->elements.bytes[i], 2);
-		if (i < (comp->len - 1))
-			putchar(' ');
-	}
-	putchar(bracket_close);
 }
 
 bool_t compound_is_data(struct compound *comp)
