@@ -58,6 +58,15 @@ int strncmp(char *s1, char *s2, unsigned long long n)
 	}
 }
 
+void memcpy(void *dst, void *src, unsigned long long size)
+{
+	unsigned char *d = (unsigned char *)dst;
+	unsigned char *s = (unsigned char *)src;
+	for (; size > 0; size--)
+		*d++ = *s++;
+}
+#endif
+
 unsigned long long strnidx(char s[], char c, unsigned long long size)
 {
 	unsigned long long i;
@@ -70,15 +79,6 @@ unsigned long long strnidx(char s[], char c, unsigned long long size)
 	}
 	return i;
 }
-
-void memcpy(void *dst, void *src, unsigned long long size)
-{
-	unsigned char *d = (unsigned char *)dst;
-	unsigned char *s = (unsigned char *)src;
-	for (; size > 0; size--)
-		*d++ = *s++;
-}
-#endif
 
 unsigned long long syscall(
 	unsigned long long syscall_id __attribute__((unused)),

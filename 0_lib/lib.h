@@ -12,7 +12,6 @@
 
 #define TRUE	1
 #define FALSE	0
-#define NULL	(void *)0
 
 #define MAX_FILES	1000
 
@@ -39,7 +38,10 @@
 #define CPU_PAUSE()	asm volatile ("pause")
 
 typedef unsigned char bool_t;
+
+#ifndef RUN_LOCAL
 typedef unsigned long long size_t;
+#endif
 
 enum SYSCCALL_NO {
 	SYSCALL_PUTC,
