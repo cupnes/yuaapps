@@ -370,7 +370,7 @@ static void ls(char prefix)
 	draw_fg(sysfile_list[SFID_LS_WIN]);
 
 	struct file *f[MAX_FILES];
-	unsigned long long num_files = get_files(f);
+	unsigned long long num_files = get_files_with_prefix(f, prefix);
 
 	/* f[num_files] = &e_osunc; */
 	/* num_files++; */
