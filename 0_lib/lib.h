@@ -77,6 +77,8 @@ enum SYSCCALL_NO {
 	SYSCALL_FINISH_CURRENT_TASK,
 	SYSCALL_EXEC_AP,
 	SYSCALL_FILL_RECT,
+	SYSCALL_DRAW_PX,
+	SYSCALL_GET_PNUM,
 	MAX_SYSCALL_NUM
 };
 
@@ -346,6 +348,7 @@ void move_cursor(unsigned int x, unsigned int y);
 void move_cursor_text(unsigned int x, unsigned int y);
 unsigned int get_cursor_y(void);
 void get_px(unsigned int x, unsigned int y, struct pixelformat *val);
+void draw_px(unsigned int x, unsigned int y, struct pixelformat *px);
 void draw_px_fg(unsigned int x, unsigned int y);
 void draw_px_bg(unsigned int x, unsigned int y);
 void draw_bg(struct file *img);
@@ -368,6 +371,7 @@ void nic_rx_enable(void);
 void set_seed(unsigned short seed);
 unsigned short rand(void);
 #endif
+unsigned long long random(void);
 char ser_getc(void);
 void ser_putc(char c);
 char *file_read_line(char buf[], unsigned int buf_len, struct textfile *text);
@@ -389,5 +393,7 @@ struct singly_list *slist_remove(
 	struct singly_list *entry, struct singly_list *head);
 struct singly_list *slist_find_in(
 	struct singly_list *target, struct singly_list *list);
+
+unsigned char get_pnum(void);
 
 #endif

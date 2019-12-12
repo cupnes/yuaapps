@@ -287,6 +287,11 @@ void get_px(unsigned int x, unsigned int y, struct pixelformat *val)
 	syscall(SYSCALL_GET_PX, x, y, (unsigned long long)val);
 }
 
+void draw_px(unsigned int x, unsigned int y, struct pixelformat *px)
+{
+	syscall(SYSCALL_DRAW_PX, x, y, (unsigned long long)px);
+}
+
 void draw_px_fg(unsigned int x, unsigned int y)
 {
 	syscall(SYSCALL_DRAW_PX_FG, x, y, 0);
@@ -437,6 +442,13 @@ unsigned short rand(void)
 }
 #endif
 
+inline unsigned long long random(void)
+{
+	unsigned long long rnd;
+	asm volatile ("rdrand %[rnd]": [rnd]"=r"(rnd));
+	return rnd;
+}
+
 char ser_getc(void)
 {
 	return syscall(SYSCALL_SER_GETC, 0, 0, 0);
@@ -532,4 +544,9 @@ struct singly_list *slist_find_in(
 			return entry;
 	}
 	return NULL;
+}
+
+unsigned char get_pnum(void)
+{
+	return syscall(SYSCALL_GET_PNUM, 0, 0, 0);
 }
